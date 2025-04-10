@@ -204,6 +204,9 @@ public class MenuController extends ToolController{
     }
     @FXML // 表单保存按钮
     protected void onSubmitButtonClick() {
+        if(editNode == null) {
+            throw new RuntimeException("请先选择一个节点的业务");
+        }
         editNode.setId(Integer.parseInt(nodeIdField.getText()));
         editNode.setValue(nodeNameField.getText());
         editNode.setTitle(nodeTitleField.getText());
