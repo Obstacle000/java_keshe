@@ -150,7 +150,8 @@ public class StudentController {
     @GetMapping("/getStudentScore")
     @PreAuthorize(" hasRole('ADMIN')")
     public DataResponse getStudentScore(@Valid @RequestBody DataRequest dataRequest) {
-        return studentService.studentScoreList(dataRequest);
+
+        return null;
     }
 
 }

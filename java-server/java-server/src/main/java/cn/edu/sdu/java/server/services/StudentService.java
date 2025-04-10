@@ -203,24 +203,6 @@ public class StudentService {
         return CommonMethod.getReturnData(s.getPersonId());  // 将personId返回前端
 
     }
-    public DataResponse studentScoreList(DataRequest dataRequest) {
-        Integer personId = dataRequest.getInteger("personId");
-        List<Score> list = scoreRepository.findByStudentPersonId(personId);
-        List<Map<String, Object>> studentScoreList = getStudentScoreList(list);
-
-        List<Map<String, Object>> studentMarkList = getStudentMarkList(list);
-        studentScoreList.addAll(studentMarkList);
-        return CommonMethod.getReturnData(studentScoreList);
-    }
-
-
-
-
-
-
-
-
-
 
 
     public List<Map<String,Object>> getStudentScoreList(List<Score> sList) {
