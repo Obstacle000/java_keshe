@@ -1,0 +1,34 @@
+
+security:
+  jwt:
+    secret-key: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b
+    expiration-time: 86400000
+server:
+  port: 22222
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+spring:
+  application:
+    name: java-server
+  datasource:
+    url: jdbc:mysql://202.194.14.120:3306/java_2_17?allowPublicKeyRetrieval=true&useSSL=false
+    username: java_2_17
+    password: JavaP217@
+
+  jpa:
+    generate-ddl: true
+    hibernate.ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+
+attach:
+  folder: /teach-2025/
+logging:
+  config: classpath:loggback.xml
+
