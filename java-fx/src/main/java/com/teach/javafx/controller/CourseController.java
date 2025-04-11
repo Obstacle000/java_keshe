@@ -138,7 +138,7 @@ public class CourseController {
             // code0代表后端返回了OK
             if (res.getCode() == 0) {
                 MessageDialog.showDialog("删除成功！");
-                onQueryButtonClick(); // 更新表数据
+                onQueryButtonClick(); // 更新表数据.
             } else {
                 MessageDialog.showDialog(res.getMsg());
             }
