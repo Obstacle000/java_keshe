@@ -51,7 +51,7 @@ public class CourseService {
         Course c= null;
 
         if(courseId != null) {
-            op = courseRepository.findById(courseId);
+            op = courseRepository.findByCourseId(courseId);
             if(op.isPresent())
                 c= op.get();
         }
@@ -59,7 +59,7 @@ public class CourseService {
             c = new Course();
         Course pc =null;
         if(preCourseId != null) {
-            op = courseRepository.findById(preCourseId);
+            op = courseRepository.findByCourseId(preCourseId);
             if(op.isPresent())
                 pc = op.get();
         }
@@ -76,7 +76,7 @@ public class CourseService {
         Optional<Course> op;
         Course c= null;
         if(courseId != null) {
-            op = courseRepository.findById(courseId);
+            op = courseRepository.findByCourseId(courseId);
             if(op.isPresent()) {
                 c = op.get();
                 courseRepository.delete(c);
