@@ -5,7 +5,10 @@ import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.repositorys.CourseRepository;
 import cn.edu.sdu.java.server.util.CommonMethod;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import java.util.*;
 
 @Service
@@ -46,7 +49,7 @@ public class CourseService {
         String name = dataRequest.getString("name");
         String coursePath = dataRequest.getString("coursePath");
         Integer credit = dataRequest.getInteger("credit");
-        Integer preCourseId = dataRequest.getInteger("preCourseId");
+        String preCourse = dataRequest.getString("preCourse");
         Optional<Course> op;
         Course c= null;
 
@@ -58,8 +61,8 @@ public class CourseService {
         if(c== null)
             c = new Course();
         Course pc =null;
-        if(preCourseId != null) {
-            op = courseRepository.findByCourseId(preCourseId);
+        if(preCourse != null) {
+            op = courseRepository.findByName(preCourse);
             if(op.isPresent())
                 pc = op.get();
         }
@@ -85,4 +88,28 @@ public class CourseService {
         return CommonMethod.getReturnMessageOK();
     }
 
+    public DataResponse courseAdd(@RequestBody @Valid DataRequest dataRequest) {
+        String num = dataRequest.getString("num");
+        String name = dataRequest.getString("name");
+        Integer credit = dataRequest.getInteger("credit");
+        String preCourse = dataRequest.getString("preCourse");
+
+        if (num == null || name == null || credit == null) {
+            return new DataResponse(1,null,"课程号、课程名或学分不能为空！");
+        }
+
+        // 构建课程对象（假设你有 Course 实体类）
+        Course course = new Course();
+        course.setNum(num);
+        course.setName(name);
+        course.setCredit(credit);
+        Course pcourse = courseRepository.findByName(preCourse).get();
+        course.setPreCourse(pcourse);
+
+        // 保存到数据库（假设你有 courseService）
+        courseRepository.save(course);
+
+        return CommonMethod.getReturnMessageOK();
+    }
 }
+

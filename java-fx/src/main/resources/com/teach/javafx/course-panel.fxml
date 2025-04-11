@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
 
 <!-- 学生个人简历界面 FXML配置文件 对应页面交互控制类 com.teach.javafx.controller.StudentIntroduceController -->
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-<BorderPane  maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            style= "-fx-background-image: url('shanda1.jpg'); -fx-background-repeat: no-repeat; -fx-background-size: cover;" fx:controller="com.teach.javafx.controller.CourseController">
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-image: url('shanda1.jpg'); -fx-background-repeat: no-repeat; -fx-background-size: cover;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teach.javafx.controller.CourseController">
    <center>
-      <TableView fx:id="dataTableView"  >
+      <TableView fx:id="dataTableView">
          <columns>
             <TableColumn fx:id="numColumn" prefWidth="120.0" text="课程号" />
             <TableColumn fx:id="nameColumn" prefWidth="90.0" text="课程名" />
@@ -18,4 +21,17 @@
          </columns>
       </TableView>
    </center>
+   <bottom>
+      <HBox prefHeight="26.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <FlowPane prefHeight="38.0" prefWidth="214.0" />
+            <FlowPane prefHeight="27.0" prefWidth="359.0" />
+            <FlowPane prefHeight="20.0" prefWidth="129.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#onAddCourse" prefHeight="27.0" prefWidth="90.0" text="添加课程" />
+               </children>
+            </FlowPane>
+         </children>
+      </HBox>
+   </bottom>
 </BorderPane>

@@ -1,19 +1,24 @@
 package com.teach.javafx.controller;
 
 import com.teach.javafx.controller.base.MessageDialog;
+import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import com.teach.javafx.request.HttpRequestUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.FlowPane;
 import com.teach.javafx.request.DataRequest;
 import com.teach.javafx.request.DataResponse;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +47,7 @@ public class CourseController {
     private final ObservableList<Map<String,Object>> observableList= FXCollections.observableArrayList();  // TableView渲染列表
 
 
-   // 获取所有学生那个数据,初始化时调用
+   // 获取所有学生数据,初始化时调用
     private void onQueryButtonClick(){
         DataResponse res;
         DataRequest req =new DataRequest();
@@ -96,7 +101,7 @@ public class CourseController {
         // 只做 null 检查
         Integer courseId = data.get("courseId") != null ? Integer.parseInt(data.get("courseId").toString()) : null;
         Integer credit = data.get("credit") != null ? Integer.parseInt(data.get("credit").toString()) : null;
-        Double preCourseId = data.get("preCourseId") != null ? Double.parseDouble(data.get("preCourseId").toString()) : null;
+        String preCourse = data.get("preCourse") != null ? data.get("preCourse").toString() : null;
         String num = data.get("num") != null ? data.get("num").toString() : "";
         String courseName = data.get("name") != null ? data.get("name").toString() : "";
         String coursePath = data.get("coursePath") != null ? data.get("coursePath").toString() : "";
@@ -104,7 +109,7 @@ public class CourseController {
         DataRequest req = new DataRequest();
         if (courseId != null) req.add("courseId", courseId);
         if (credit != null) req.add("credit", credit);
-        if (preCourseId != null) req.add("preCourseId", preCourseId);
+        if (preCourse != null) req.add("preCourse", preCourse);
         req.add("num", num);
         req.add("name", courseName);
         req.add("coursePath", coursePath);
@@ -148,6 +153,79 @@ public class CourseController {
         }
     }
 
+
+    @FXML
+    void onAddCourse(ActionEvent event) {
+        Stage dialog = new Stage();
+        dialog.setTitle("添加课程");
+        dialog.initModality(Modality.APPLICATION_MODAL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20));
+
+        TextField numField = new TextField();
+        TextField nameField = new TextField();
+        TextField creditField = new TextField();
+        TextField preCourseField = new TextField();
+
+        grid.add(new Label("课程号:"), 0, 0);
+        grid.add(numField, 1, 0);
+        grid.add(new Label("课程名:"), 0, 1);
+        grid.add(nameField, 1, 1);
+        grid.add(new Label("学分:"), 0, 2);
+        grid.add(creditField, 1, 2);
+        grid.add(new Label("前序课程名:"), 0, 3);
+        grid.add(preCourseField, 1, 3);
+
+        Button submitButton = new Button("提交");
+        submitButton.setOnAction(e -> {
+            String num = numField.getText();
+            String name = nameField.getText();
+            String creditText = creditField.getText();
+            String preCourse = preCourseField.getText();
+
+            if (num.isEmpty() || name.isEmpty() || creditText.isEmpty()) {
+                MessageDialog.showDialog("请填写完整课程信息！");
+                return;
+            }
+
+            int credit = 0;
+            try {
+                credit = Integer.parseInt(creditText);
+            } catch (NumberFormatException ex) {
+                MessageDialog.showDialog("学分必须是整数！");
+                return;
+            }
+
+            DataRequest req = new DataRequest();
+            req.add("num", num);
+            req.add("name", name);
+            req.add("credit", credit);
+            req.add("preCourse", preCourse);
+
+            DataResponse res = HttpRequestUtil.request("/api/course/courseAdd", req);
+            if (res != null && res.getCode() == 0) {
+                MessageDialog.showDialog("课程添加成功！");
+                dialog.close();
+                onQueryButtonClick();
+            } else {
+                MessageDialog.showDialog(res != null ? res.getMsg() : "请求失败！");
+            }
+        });
+
+        HBox buttonBox = new HBox(10, submitButton);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        grid.add(buttonBox, 1, 4);
+
+        Scene scene = new Scene(grid);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+
+    }
+
+
     @FXML
     public void initialize() {
         numColumn.setCellValueFactory(new MapValueFactory<>("num"));
@@ -170,7 +248,18 @@ public class CourseController {
         creditColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         creditColumn.setOnEditCommit(event -> {
             Map<String, Object> map = event.getRowValue();
-            map.put("credit", event.getNewValue());
+            String newValue = event.getNewValue();
+
+            try {
+                // 尝试转换为整数
+                int credit = Integer.parseInt(newValue);
+                map.put("credit", credit);
+            } catch (NumberFormatException e) {
+                // 弹出错误提示
+                MessageDialog.showDialog("请输入合法的整数学分！");
+                // 回退原来的值
+                dataTableView.refresh(); // 强制刷新，不然 UI 可能不更新
+            }
         });
         preCourseColumn.setCellValueFactory(new MapValueFactory<>("preCourse"));
         preCourseColumn.setCellFactory(TextFieldTableCell.forTableColumn());

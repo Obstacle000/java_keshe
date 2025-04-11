@@ -29,4 +29,9 @@ public class CourseController {
     public DataResponse courseDelete(@Valid @RequestBody DataRequest dataRequest) {
         return courseService.courseDelete(dataRequest);
     }
+
+    @PostMapping("/courseAdd")
+    public DataResponse courseAdd(@Valid @RequestBody DataRequest dataRequest) {
+        return courseService.courseAdd(dataRequest);
+    }
 }

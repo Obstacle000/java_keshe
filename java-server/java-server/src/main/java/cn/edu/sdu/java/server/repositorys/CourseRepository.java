@@ -20,8 +20,9 @@ public interface CourseRepository extends JpaRepository<Course,Integer> {
     Optional<Course> findByNum(String num);
     // 识别的前提是类里面有这个成员
     Optional<Course> findByCourseId(Integer courseId);
+    // Optional<Course> findByPreCourse(String preCourse);
+    Optional<Course> findByName(String name);
 
 
 
-    List<Course> findByName(String name);
 }
