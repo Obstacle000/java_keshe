@@ -2,6 +2,7 @@ package com.teach.javafx.controller;
 
 import com.teach.javafx.MainApplication;
 import com.teach.javafx.controller.base.MessageDialog;
+import com.teach.javafx.controller.base.ToolController;
 import com.teach.javafx.request.HttpRequestUtil;
 import com.teach.javafx.request.OptionItem;
 import com.teach.javafx.request.DataRequest;
@@ -17,12 +18,13 @@ import javafx.scene.control.cell.MapValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javax.tools.Tool;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ScoreTableController {
+public class ScoreTableController extends ToolController {
     @FXML
     private TableView<Map> dataTableView;
     @FXML
@@ -43,7 +45,7 @@ public class ScoreTableController {
     private TableColumn<Map, Button> editColumn;
 
     // 表格数据,里面存这每行的map,跟之前一样,list给行(map)铺路,list是想象成木桶
-    private ArrayList<Map> scoreList = new ArrayList();  // 学生信息列表数据
+    private ArrayList<Map> scoreList = new ArrayList();
     private ObservableList<Map> observableList= FXCollections.observableArrayList();  // TableView渲染列表
 
     @FXML
@@ -189,6 +191,11 @@ public class ScoreTableController {
      * 5. ScoreEditController的okButtonClick方法监听窗口的变化,更新ScoreEditController的data
      * 然后调用本类的doClose("ok",data)方法,保存更新
      * 6. 如果按的是修改按钮,就相当于从第三步开始,editItem和onEditButtonClick方法一样
+     *
+     * 简单来说就是本类不会进行修改逻辑,会转交给ScoreEditController处理
+     * initDialog();
+     * scoreEditController.showDialog(null); 里面传递回显的数据,然后就不用管了,ScoreEditController这个类会把
+     * 更新的数据传给本类的doClose方法,然后请求后端更新
      */
     public void doClose(String cmd, Map<String, Object> data) {
         MainApplication.setCanClose(true);
@@ -224,6 +231,7 @@ public class ScoreTableController {
         MainApplication.setCanClose(false);
         stage.showAndWait();
     }
+
     @FXML
     private void onEditButtonClick() {
 //        dataTableView.getSelectionModel().getSelectedItems();
@@ -260,4 +268,13 @@ public class ScoreTableController {
         }
     }
 
+    @Override
+    public void doNew() {
+        onQueryButtonClick();
+    }
+
+    @Override
+    public void doDelete() {
+        onDeleteButtonClick();
+    }
 }
