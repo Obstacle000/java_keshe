@@ -143,6 +143,9 @@ public class CourseController {
                 MessageDialog.showDialog(res.getMsg());
             }
         }
+        else {
+            MessageDialog.showDialog("该课程具有成绩.无法删除");
+        }
     }
 
     @FXML
