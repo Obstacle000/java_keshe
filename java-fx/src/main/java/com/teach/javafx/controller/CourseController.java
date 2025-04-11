@@ -1,6 +1,8 @@
 package com.teach.javafx.controller;
 
 import com.teach.javafx.controller.base.MessageDialog;
+import com.teach.javafx.controller.base.ToolController;
+import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,7 +31,7 @@ import java.util.Map;
  *  @FXML  属性 对应fxml文件中的
  *  @FXML 方法 对应于fxml文件中的 on***Click的属性
  */
-public class CourseController {
+public class CourseController extends ToolController {
     @FXML
     private TableView<Map<String, Object>> dataTableView;
     @FXML
@@ -92,6 +94,7 @@ public class CourseController {
             }
             dataTableView.setItems(observableList);
     }
+
     public void saveItem(String name) {
         if (name == null) return;
 
@@ -154,8 +157,7 @@ public class CourseController {
     }
 
 
-    @FXML
-    void onAddCourse(ActionEvent event) {
+    private void showAddCourseDialog() {
         Stage dialog = new Stage();
         dialog.setTitle("添加课程");
         dialog.initModality(Modality.APPLICATION_MODAL);
@@ -222,10 +224,25 @@ public class CourseController {
         Scene scene = new Scene(grid);
         dialog.setScene(scene);
         dialog.showAndWait();
-
     }
 
 
+    @FXML
+    void onAddCourse(ActionEvent event) {
+        showAddCourseDialog();
+    }
+
+    public void doNew() {
+        showAddCourseDialog();
+    }
+
+    public void doSave() {
+        MessageDialog.showDialog("无效操作");
+    }
+
+    public void doDelete() {
+        MessageDialog.showDialog("无效操作");
+    }
     @FXML
     public void initialize() {
         numColumn.setCellValueFactory(new MapValueFactory<>("num"));

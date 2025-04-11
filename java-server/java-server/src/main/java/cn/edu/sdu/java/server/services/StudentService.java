@@ -201,6 +201,7 @@ public class StudentService {
         s.setClassName(CommonMethod.getString(form, "className"));
         studentRepository.save(s);  //修改保存学生信息
         systemService.modifyLog(s,isNew);
+
         return CommonMethod.getReturnData(s.getPersonId());  // 将personId返回前端
 
     }
