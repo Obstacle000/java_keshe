@@ -33,6 +33,7 @@ public class ScoreEditController {
 
     @FXML
     public void okButtonClick(){
+        // 修改逻辑,在这里修改成绩
         Map<String,Object> data = new HashMap<>();
         OptionItem op;
         op = studentComboBox.getSelectionModel().getSelectedItem();
@@ -47,6 +48,7 @@ public class ScoreEditController {
         data.put("mark",markField.getText());
         scoreTableController.doClose("ok",data);
     }
+
     @FXML
     public void cancelButtonClick(){
         scoreTableController.doClose("cancel",null);
@@ -55,6 +57,7 @@ public class ScoreEditController {
     public void setScoreTableController(ScoreTableController scoreTableController) {
         this.scoreTableController = scoreTableController;
     }
+    //准备工作,往scoreEditController的成员里放数据
     public void init(){
         studentList =scoreTableController.getStudentList();
         courseList = scoreTableController.getCourseList();

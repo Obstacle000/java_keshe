@@ -26,9 +26,11 @@ public class ScoreService {
         this.studentRepository = studentRepository;
     }
     public OptionItemList getStudentItemOptionList( DataRequest dataRequest) {
+        // 查询所有
         List<Student> sList = studentRepository.findStudentListByNumName("");  //数据库查询操作
         List<OptionItem> itemList = new ArrayList<>();
         for (Student s : sList) {
+            // 返回格式
             itemList.add(new OptionItem( s.getPersonId(),s.getPersonId()+"", s.getPerson().getNum()+"-"+s.getPerson().getName()));
         }
         return new OptionItemList(0, itemList);
@@ -38,6 +40,7 @@ public class ScoreService {
         List<Course> sList = courseRepository.findAll();  //数据库查询操作
         List<OptionItem> itemList = new ArrayList<>();
         for (Course c : sList) {
+            // 返回格式
             itemList.add(new OptionItem(c.getCourseId(),c.getCourseId()+"", c.getNum()+"-"+c.getName()));
         }
         return new OptionItemList(0, itemList);
@@ -50,6 +53,7 @@ public class ScoreService {
         Integer courseId = dataRequest.getInteger("courseId");
         if(courseId == null)
             courseId = 0;
+        // Score里面有两个外键,还是用JPA的特性直接拿
         List<Score> sList = scoreRepository.findByStudentCourse(personId, courseId);  //数据库查询操作
         List<Map<String,Object>> dataList = new ArrayList<>();
         Map<String,Object> m;
@@ -58,6 +62,7 @@ public class ScoreService {
             m.put("scoreId", s.getScoreId()+"");
             m.put("personId",s.getStudent().getPersonId()+"");
             m.put("courseId",s.getCourse().getCourseId()+"");
+            // 上面的是顺便返回,下面的是要展示的数据
             m.put("studentNum",s.getStudent().getPerson().getNum());
             m.put("studentName",s.getStudent().getPerson().getName());
             m.put("className",s.getStudent().getClassName());
