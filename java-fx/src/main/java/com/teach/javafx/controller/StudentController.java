@@ -256,6 +256,10 @@ public class StudentController extends ToolController {
                 MessageDialog.showDialog(res.getMsg());
             }
         }
+        else {
+            MessageDialog.showDialog("该学生具有成绩.无法删除");
+            // TODO 可以在这里写 删除学生一并删除成绩
+        }
     }
 
     /**

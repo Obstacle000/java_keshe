@@ -113,8 +113,9 @@ public class StudentService {
                 //删除对应该学生的账户
                 uOp.ifPresent(userRepository::delete);
                 Person p = s.getPerson();
-                studentRepository.delete(s);    //首先数据库永久删除学生信息
-                personRepository.delete(p);   // 然后数据库永久删除学生信息
+                // 顺序不能颠倒,person表有外键
+                studentRepository.delete(s);    //首先student数据库永久删除学生信息
+                personRepository.delete(p);   // 然后person数据库永久删除学生信息
             }
         }
         return CommonMethod.getReturnMessageOK();  //通知前端操作正常
