@@ -103,8 +103,11 @@ public class CourseService {
         course.setNum(num);
         course.setName(name);
         course.setCredit(credit);
-        Course pcourse = courseRepository.findByName(preCourse).get();
-        course.setPreCourse(pcourse);
+
+        Optional<Course> pcourseOp = courseRepository.findByName(preCourse);
+        if(pcourseOp.isPresent()) {
+            course.setPreCourse(pcourseOp.get());
+        }
 
         // 保存到数据库（假设你有 courseService）
         courseRepository.save(course);
