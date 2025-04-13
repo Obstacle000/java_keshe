@@ -88,6 +88,7 @@ public class ScoreService {
                 s = op.get();
         }
         if(s == null) {
+            // 不传入id,执行插入
             s = new Score();
             s.setStudent(studentRepository.findById(personId).get());
             s.setCourse(courseRepository.findById(courseId).get());

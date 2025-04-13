@@ -234,7 +234,7 @@ public class ScoreTableController extends ToolController {
 
     @FXML
     private void onEditButtonClick() {
-//        dataTableView.getSelectionModel().getSelectedItems();
+
         Map data = dataTableView.getSelectionModel().getSelectedItem();
         if(data == null) {
             MessageDialog.showDialog("没有选中，不能修改！");

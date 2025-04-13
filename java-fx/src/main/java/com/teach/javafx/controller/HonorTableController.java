@@ -145,7 +145,7 @@ public class HonorTableController {
         FXMLLoader fxmlLoader ;
         Scene scene = null;
         try {
-            fxmlLoader = new FXMLLoader(MainApplication.class.getResource("honour-edit-dialog.fxml"));
+            fxmlLoader = new FXMLLoader(MainApplication.class.getResource("honor-edit-dialog.fxml"));
             scene = new Scene(fxmlLoader.load(), 260, 140);
             stage = new Stage();
             stage.initOwner(MainApplication.getMainStage());
@@ -191,16 +191,45 @@ public class HonorTableController {
 
     @FXML
     void onAddButtonClick(ActionEvent event) {
-
+        initDialog();
+        honorEditController.showDialog(null);
+        MainApplication.setCanClose(false);
+        stage.showAndWait();
     }
 
     @FXML
     void onDeleteButtonClick(ActionEvent event) {
-
+        Map<String,Object> form = dataTableView.getSelectionModel().getSelectedItem();
+        if(form == null) {
+            MessageDialog.showDialog("没有选择，不能删除");
+            return;
+        }
+        int ret = MessageDialog.choiceDialog("确认要删除吗?");
+        if(ret != MessageDialog.CHOICE_YES) {
+            return;
+        }
+        Integer honorId = CommonMethod.getInteger(form,"honorId");
+        DataRequest req = new DataRequest();
+        req.add("honorId", honorId);
+        DataResponse res = HttpRequestUtil.request("/api/honor/honorDelete",req);
+        if(res.getCode() == 0) {
+            onQueryButtonClick();
+        }
+        else {
+            MessageDialog.showDialog(res.getMsg());
+        }
     }
 
     @FXML
     void onEditButtonClick(ActionEvent event) {
-
+        Map data = dataTableView.getSelectionModel().getSelectedItem();
+        if(data == null) {
+            MessageDialog.showDialog("没有选中，不能修改！");
+            return;
+        }
+        initDialog();
+        honorEditController.showDialog(data);
+        MainApplication.setCanClose(false);
+        stage.showAndWait();
     }
 }

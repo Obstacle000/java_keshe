@@ -39,7 +39,7 @@ public class HonorService {
         Map<String,Object> m;
         for (Honor h : hList) {
             m = new HashMap<>();
-            m.put("honorId", h.getHonor()+"");
+            m.put("honorId", h.getHonorId()+"");
             m.put("personId",h.getPerson().getPersonId()+"");
             // 上面的是顺便返回,下面的是要展示的数据
             m.put("num",h.getPerson().getNum());
