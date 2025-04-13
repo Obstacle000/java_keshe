@@ -2,7 +2,9 @@ package cn.edu.sdu.java.server.repositorys;
 
 import cn.edu.sdu.java.server.models.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 /*
@@ -12,4 +14,7 @@ import java.util.Optional;
  */
 public interface PersonRepository extends JpaRepository<Person, Integer> {
     Optional<Person> findByNum(String num);
+
+    @Query(value = "from Person where ?1='' or num like %?1% or name like %?1% ")
+    List<Person> findPersonListByNumName(String s);
 }

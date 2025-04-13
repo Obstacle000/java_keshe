@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class HonorController {
     @Autowired
     private HonorService honorService;
-    @PostMapping("/getNameItemOptionList")
-    public OptionItemList getNameItemOptionList(@Valid @RequestBody DataRequest dataRequest) {
-        return honorService.getNameItemOptionList(dataRequest);
+    @PostMapping("/getPersonItemOptionList")
+    public OptionItemList getPersonItemOptionList(@Valid @RequestBody DataRequest dataRequest) {
+        return honorService.getPersonItemOptionList(dataRequest);
     }
 
     @PostMapping("/getHonorList")

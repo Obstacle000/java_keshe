@@ -32,13 +32,13 @@
                <Insets right="5.0" />
             </GridPane.margin>
          </Label>
-         <ComboBox fx:id="studentComboBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+         <ComboBox fx:id="personComboBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          <Label text="荣誉" GridPane.columnIndex="0" GridPane.rowIndex="2">
             <GridPane.margin>
                <Insets right="5.0" />
             </GridPane.margin>
          </Label>
-         <TextField fx:id="markField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+         <TextField fx:id="honorField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       </children>
    </GridPane>
    <FlowPane alignment="CENTER" prefHeight="40.0" prefWidth="300.0" BorderPane.alignment="CENTER">

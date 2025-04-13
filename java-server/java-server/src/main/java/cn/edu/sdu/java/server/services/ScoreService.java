@@ -74,6 +74,7 @@ public class ScoreService {
         }
         return CommonMethod.getReturnData(dataList);
     }
+
     public DataResponse scoreSave(DataRequest dataRequest) {
         Integer personId = dataRequest.getInteger("personId");
         Integer courseId = dataRequest.getInteger("courseId");

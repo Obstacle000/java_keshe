@@ -202,7 +202,7 @@ public class MainFrameController {
             throw new RuntimeException(e);
         }
     }
-    // 菜单栏的方法,在雨中都要调用另一个changeContent方法
+    // 菜单栏的方法,在树中都要调用另一个changeContent方法
     public  void changeContent(ActionEvent ae) {
         Object obj = ae.getSource();
         String name= null, title= null;
@@ -241,14 +241,15 @@ public class MainFrameController {
         if(tab == null) {
             scene = sceneMap.get(name);
             if(scene == null) {
-                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(name + ".fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/teach/javafx/"+name+".fxml"));
                 try {
+                    // 已经确定了能找到文件,但就是load报错
                     scene = new Scene(fxmlLoader.load(), 1024, 768);
                     sceneMap.put(name, scene);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
-                    return;
                 }
+
                 c = fxmlLoader.getController();
                 if(c instanceof ToolController) {
                     controlMap.put(name,(ToolController)c);
