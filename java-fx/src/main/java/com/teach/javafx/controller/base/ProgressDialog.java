@@ -10,6 +10,7 @@ import java.io.IOException;
 /**
  * MessageDialog 消息对话框工具类 可以显示提示信息，用户选择确认信息和PDF显示
  */
+// 进度条
 public class ProgressDialog {
 
     private  ProgressController progressController= null;

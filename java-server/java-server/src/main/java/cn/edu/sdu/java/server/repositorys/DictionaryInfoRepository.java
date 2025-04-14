@@ -22,7 +22,10 @@ public interface DictionaryInfoRepository extends JpaRepository<DictionaryInfo,I
 
     @Query(value = "select d.* from dictionary d, dictionary f where f.id = d.pid and f.value = ?1", nativeQuery = true)
     List<DictionaryInfo>getDictionaryInfoList(String code);
-    int countDictionaryInfoByPid(Integer count);
+
+    @Query("SELECT COUNT(d) FROM DictionaryInfo d WHERE d.pid = :pid")
+    int countByPid(Integer pid);
+
 
 
 }

@@ -43,6 +43,9 @@ public class MenuController extends ToolController{
     private TreeItem<MyTreeNode> root;
     private Integer editType = 0;
 
+
+
+
     private TreeItem<MyTreeNode> getTreeItem(MyTreeNode node) {
         TreeItem<MyTreeNode> item = new TreeItem<>(node);
         List<MyTreeNode> sList = node.getChildren();
@@ -98,7 +101,7 @@ public class MenuController extends ToolController{
         }
     }
 
-
+    // 一定要注意权限,不然菜单栏和菜单树显示不出来
     public void setRoleCheckBox(){
         nodeAdminCheckBox.setSelected(false);
         nodeStudentCheckBox.setSelected(false);
@@ -242,5 +245,7 @@ public class MenuController extends ToolController{
         }else {
             MessageDialog.showDialog(res.getMsg());
         }
+
+
     }
 }

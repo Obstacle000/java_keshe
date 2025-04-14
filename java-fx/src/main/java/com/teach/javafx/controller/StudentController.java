@@ -242,8 +242,9 @@ public class StudentController extends ToolController {
         }
         int ret = MessageDialog.choiceDialog("确认要删除吗?");
         if (ret != MessageDialog.CHOICE_YES) {
-            return;
+            return; // 用户点了否,直接退出方法关闭窗口
         }
+        // 用户点了是
         personId = CommonMethod.getInteger(form, "personId");
         DataRequest req = new DataRequest();
         req.add("personId", personId);

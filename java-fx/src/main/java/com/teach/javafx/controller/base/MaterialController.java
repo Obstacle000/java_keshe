@@ -12,11 +12,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 
-/**
- * DictionaryController 登录交互控制类 对应 base/dictionary-panel.fxml
- *  @FXML  属性 对应fxml文件中的
- *  @FXML 方法 对应于fxml文件中的 on***Click的属性
- */
+
+// 用户通过图形界面可以查看教学资料的树形结构，并且点击按钮下载具体的文件。 看起来跟学生老师有关
+// TODO 现在数据库和后端和前端fxml文件都没有相关数据
 public class MaterialController{
     @FXML
     private TreeTableView<MyTreeNode> treeTable;

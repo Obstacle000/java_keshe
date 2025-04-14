@@ -15,7 +15,7 @@ import javafx.stage.Stage;
  *  @FXML  属性 对应fxml文件中的
  *  @FXML 方法 对应于fxml文件中的 on***Click的属性
  */
-
+// 56 没有什么逻辑操作,只会用来给你提示消息,你点确定就完了,比如什么什么成功,什么什么失败
 public class MessageController {
     @FXML
     private TextFlow textFLow;

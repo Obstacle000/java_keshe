@@ -176,6 +176,7 @@ public class MainFrameController {
         initMenuBar(mList);
         initMenuTree(mList);
 
+        System.out.println("菜单列表数据：" + mList);
 
 
 

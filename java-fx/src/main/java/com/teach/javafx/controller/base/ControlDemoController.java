@@ -13,6 +13,7 @@ import java.util.List;
  *  @FXML  属性 对应fxml文件中的
  *  @FXML 方法 对应于fxml文件中的 on***Click的属性
  */
+// 演示类 1
 public class ControlDemoController {
     @FXML
     private  Button button;
@@ -38,9 +39,14 @@ public class ControlDemoController {
         studentList.add(new Student("001","name1"));
         studentList.add(new Student("002","name2"));
         studentList.add(new Student("003","name3"));
+
+        // 把多个单选按钮（RadioButton）放进一个组里，让它们互斥
         ToggleGroup group = new ToggleGroup();
         group.getToggles().addAll(maleRadio, femaleRadio);
+        // 用于监听单选按钮（RadioButton）被切换时的事件 —— 当用户点击切换选中项时，会触发你定义的方法 radioChanged
         group.selectedToggleProperty().addListener(this::radioChanged);
+        // Toggle:切换开关
+
         initStudentList();
         listView.getItems().addAll(studentList);
         choiceBox.getItems().addAll(studentList);

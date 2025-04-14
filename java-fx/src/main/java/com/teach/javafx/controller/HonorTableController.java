@@ -2,11 +2,13 @@ package com.teach.javafx.controller;
 
 import com.teach.javafx.MainApplication;
 import com.teach.javafx.controller.base.MessageDialog;
+import com.teach.javafx.controller.base.ToolController;
 import com.teach.javafx.request.DataRequest;
 import com.teach.javafx.request.DataResponse;
 import com.teach.javafx.request.HttpRequestUtil;
 import com.teach.javafx.request.OptionItem;
 import com.teach.javafx.util.CommonMethod;
+import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HonorTableController {
+public class HonorTableController extends ToolController{
     @FXML
     private TableColumn<Map,String> classNameColumn;
 
@@ -190,7 +192,7 @@ public class HonorTableController {
 
 
     @FXML
-    void onAddButtonClick(ActionEvent event) {
+    void onAddButtonClick() {
         initDialog();
         honorEditController.showDialog(null);
         MainApplication.setCanClose(false);
@@ -198,7 +200,7 @@ public class HonorTableController {
     }
 
     @FXML
-    void onDeleteButtonClick(ActionEvent event) {
+    void onDeleteButtonClick() {
         Map<String,Object> form = dataTableView.getSelectionModel().getSelectedItem();
         if(form == null) {
             MessageDialog.showDialog("没有选择，不能删除");
@@ -221,7 +223,7 @@ public class HonorTableController {
     }
 
     @FXML
-    void onEditButtonClick(ActionEvent event) {
+    void onEditButtonClick() {
         Map data = dataTableView.getSelectionModel().getSelectedItem();
         if(data == null) {
             MessageDialog.showDialog("没有选中，不能修改！");
@@ -231,5 +233,21 @@ public class HonorTableController {
         honorEditController.showDialog(data);
         MainApplication.setCanClose(false);
         stage.showAndWait();
+    }
+
+    @Override
+    public void doNew() {
+        onAddButtonClick();
+    }
+
+    @Override
+    public void doSave()
+    {
+        MessageDialog.showDialog("无效操作");
+    }
+
+    @Override
+    public void doDelete() {
+        onDeleteButtonClick();
     }
 }

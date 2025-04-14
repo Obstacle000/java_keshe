@@ -270,7 +270,13 @@ public class ScoreTableController extends ToolController {
 
     @Override
     public void doNew() {
-        onQueryButtonClick();
+        onAddButtonClick();
+    }
+
+    @Override
+    public void doSave()
+    {
+        MessageDialog.showDialog("无效操作");
     }
 
     @Override

@@ -19,11 +19,13 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
             </Button>
+
             <Button  mnemonicParsing="false" text="否" onAction="#noButtonClick">
                <FlowPane.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </FlowPane.margin>
             </Button>
+
             <Button  mnemonicParsing="false" text="取消" onAction="#cancelButtonClick">
                <FlowPane.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
