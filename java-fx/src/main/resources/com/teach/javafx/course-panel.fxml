@@ -21,7 +21,7 @@
          </columns>
       </TableView>
    </center>
-   <bottom>
+   <top>
       <HBox prefHeight="26.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
             <FlowPane prefHeight="38.0" prefWidth="214.0" />
@@ -33,5 +33,5 @@
             </FlowPane>
          </children>
       </HBox>
-   </bottom>
+   </top>
 </BorderPane>

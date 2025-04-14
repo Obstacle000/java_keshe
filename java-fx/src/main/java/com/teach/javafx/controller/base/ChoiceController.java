@@ -14,6 +14,7 @@ import javafx.stage.Stage;
  *  @FXML  属性 对应fxml文件中的
  *  @FXML 方法 对应于fxml文件中的 on***Click的属性
  */
+// 34
 public class ChoiceController {
     @FXML
     private TextFlow textFLow;
@@ -30,6 +31,7 @@ public class ChoiceController {
         text = new Text("");
         text.setFill(Color.BLACK);
         text.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+
         textFLow.getChildren().add(text);
         textFLow.setLineSpacing(5);
         textFLow.setDisable(false);
@@ -46,6 +48,7 @@ public class ChoiceController {
         choice = MessageDialog.CHOICE_CANCEL;
         close();
     }
+
     @FXML
     public void yesButtonClick(){
         choice = MessageDialog.CHOICE_YES;
@@ -58,6 +61,7 @@ public class ChoiceController {
     }
 
     public void close(){
+        // setCanClose 就是比如说你打开了一个小窗口的时候不能关闭其父窗口时用
         MainApplication.setCanClose(true);
         stage.close();
     }
@@ -71,6 +75,8 @@ public class ChoiceController {
 
     public int  choiceDialog(String msg) {
         text.setText(msg);
+        // 显示这个窗口，并暂停当前代码的执行，直到用户关闭这个窗口
+        // 和上面的close方法配合,会卡在这一行直到用户点了某一个按钮,choice里面有值了
         this.stage.showAndWait();
         return choice;
     }

@@ -11,6 +11,7 @@ import java.io.IOException;
 /**
  * MessageDialog 消息对话框工具类 可以显示提示信息，用户选择确认信息和PDF显示
  */
+// 2 可以在这里拿到你想要显示给用户的小窗口
 public class MessageDialog {
     public final static int CHOICE_OK = 1;
     public final static int CHOICE_CANCEL = 2;
@@ -27,11 +28,14 @@ public class MessageDialog {
      * base/choice-dialog.fxml 用于选择 是，否 取消 消息对话框
      * base/pdf-viewer-dialog.fxml 查看PDF效果对话框
      */
+
     private MessageDialog() {
         FXMLLoader fxmlLoader ;
         Scene scene = null;
         Stage stage;
         try {
+            // 注意:这里不执行stage.show(),只是加载了文件,并赋值到各自的Controller
+            // 5
             fxmlLoader = new FXMLLoader(MainApplication.class.getResource("base/message-dialog.fxml"));
             scene = new Scene(fxmlLoader.load(), 300, 260);
             stage = new Stage();
@@ -45,7 +49,7 @@ public class MessageDialog {
             stage.setTitle("信息显示对话框");
             messageController = (MessageController) fxmlLoader.getController();
             messageController.setStage(stage);
-
+            // 3
             fxmlLoader = new FXMLLoader(MainApplication.class.getResource("base/choice-dialog.fxml"));
             scene = new Scene(fxmlLoader.load(), 300, 260);
             stage = new Stage();
@@ -69,6 +73,7 @@ public class MessageDialog {
      * showDialog 信息提示
      * @param msg  提示的信息
      */
+    // 5 传递消息框上面显示的文字
     public static void showDialog(String msg) {
         if(instance == null)
             return;
@@ -77,6 +82,7 @@ public class MessageDialog {
         instance.messageController.showDialog(msg);
         MainApplication.setCanClose(false);
     }
+
     /**
      * choiceDialog 显示提示信息和是 否 取消按钮， 用户可选择
      * 点击 是 返回 CHOICE_YES = 3;
@@ -84,6 +90,7 @@ public class MessageDialog {
      * 点击 取消 返回 CHOICE_CANCEL = 2;
      * @param msg  提示的信息
      */
+    // 3 传递选择框上面显示的文字
     public static int choiceDialog(String msg) {
         if(instance == null)
             return 0;

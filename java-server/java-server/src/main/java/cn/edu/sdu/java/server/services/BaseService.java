@@ -215,7 +215,7 @@ public class BaseService {
 
     public DataResponse deleteDictionary(DataRequest dataRequest) {
         Integer id = dataRequest.getInteger("id");
-        int count = dictionaryInfoRepository.countDictionaryInfoByPid(id);
+        int count = dictionaryInfoRepository.countByPid(id);// 拿到当前id为pid的数据数量
         if(count > 0) {
             return CommonMethod.getReturnMessageError("存在数据项，不能删除！");
         }

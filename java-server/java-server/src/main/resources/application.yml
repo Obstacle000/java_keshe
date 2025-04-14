@@ -17,7 +17,6 @@ spring:
     url: jdbc:mysql://202.194.14.120:3306/java_2_17?allowPublicKeyRetrieval=true&useSSL=false
     username: java_2_17
     password: JavaP217@
-
   jpa:
     generate-ddl: true
     hibernate.ddl-auto: update

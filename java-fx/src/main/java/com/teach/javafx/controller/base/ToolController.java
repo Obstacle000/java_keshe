@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 /**
  *ToolController 这个是一个抽象类，这些方法共具体数据管理功能实现的Controller类重写，已支持框架对编辑功能菜单的实现的业务扩展
  */
+// 表示任意业务的new,save,delete...
 public abstract class ToolController {
     public void doNew(){
 
