@@ -46,6 +46,7 @@ public class ScoreTableController extends ToolController {
 
     // 表格数据,里面存这每行的map,跟之前一样,list给行(map)铺路,list是想象成木桶
     private ArrayList<Map> scoreList = new ArrayList();
+
     private ObservableList<Map> observableList= FXCollections.observableArrayList();  // TableView渲染列表
 
     @FXML
@@ -68,6 +69,7 @@ public class ScoreTableController extends ToolController {
         return courseList;
     }
 
+
     @FXML
     public void initialize() {
 
@@ -80,6 +82,7 @@ public class ScoreTableController extends ToolController {
         creditColumn.setCellValueFactory(new MapValueFactory<>("credit"));
         markColumn.setCellValueFactory(new MapValueFactory<>("mark"));
         editColumn.setCellValueFactory(new MapValueFactory<>("edit"));
+
 
         DataRequest req =new DataRequest();
         studentList = HttpRequestUtil.requestOptionItemList("/api/score/getStudentItemOptionList",req); //从后台获取所有学生信息列表集合
@@ -110,6 +113,7 @@ public class ScoreTableController extends ToolController {
         if(op != null)
             courseId = Integer.parseInt(op.getValue());
 
+
         DataResponse res;
         DataRequest req =new DataRequest();
         req.add("personId",personId);
@@ -120,6 +124,7 @@ public class ScoreTableController extends ToolController {
         }
         setTableViewData();
     }
+
     // 展示数据用observableList
     private void setTableViewData() {
         observableList.clear();
@@ -240,11 +245,15 @@ public class ScoreTableController extends ToolController {
             MessageDialog.showDialog("没有选中，不能修改！");
             return;
         }
+
         initDialog();
         scoreEditController.showDialog(data);
+
         MainApplication.setCanClose(false);
         stage.showAndWait();
     }
+
+
     @FXML
     private void onDeleteButtonClick() {
         Map<String,Object> form = dataTableView.getSelectionModel().getSelectedItem();

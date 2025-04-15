@@ -58,6 +58,7 @@ public class CourseController extends ToolController {
             courseList = (List<Map<String, Object>>) res.getData();
         }
 
+
         setTableViewData();
     }
 
