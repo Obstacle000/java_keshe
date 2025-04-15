@@ -18,13 +18,13 @@ public class Honor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer honorId;
+    private Integer honorId;//荣誉编号
 
     @ManyToOne
     @JoinColumn(name = "personId")
-    private Person person;
+    private Person person;//荣誉对应的人
 
 
-    private String honor;
+    private String honor;//荣誉名称
 
 }
