@@ -42,9 +42,9 @@ public class MainFrameController {
     private Map<String,Scene> sceneMap = new HashMap<String,Scene>();
     private Map<String,ToolController> controlMap =new HashMap<String,ToolController>();
     @FXML
-    private MenuBar menuBar;
+    private MenuBar menuBar; // 菜单栏
     @FXML
-    private TreeView<MyTreeNode> menuTree;
+    private TreeView<MyTreeNode> menuTree; // 菜单树
     @FXML
     protected TabPane contentTabPane;
 
@@ -54,23 +54,29 @@ public class MainFrameController {
         String name, title;
         List sList;
         Map ms;
-        Menu menu;
-        MenuItem item;
+        Menu menu; // 菜单栏里的一个菜单,可展开,若可展开,其子菜单也能都能称为Menu,也就是说称呼是相对的
+        MenuItem item; // 展项里的菜单
+
         for ( Map m :mList) {
+            // 一个m就是一个二级目录
             sList = (List<Map>)m.get("sList");
             name = (String)m.get("name");
             title = (String)m.get("title");
             if(sList == null || sList.size()== 0) {
+                // 此目录没有子目录或者说递归终止条件
                 item = new MenuItem();
                 item.setId(name);
                 item.setText(title);
-                item.setOnAction(this::changeContent);// ?
+
+                item.setOnAction(this::changeContent);// 点击这个item出发
+
                 parent.getItems().add(item);
             }else {
+
                 menu = new Menu();
                 menu.setText(title);
-                addMenuItems(menu,sList);
-                parent.getItems().add(menu);
+                addMenuItems(menu,sList); // 以二级目录为父目录,递归
+                parent.getItems().add(menu); // 回溯的时候把menu放进父目录
             }
         }
     }
@@ -98,8 +104,10 @@ public class MainFrameController {
         List<Map> sList;
         for(i = 0; i < mList.size();i++) {
             m = mList.get(i);
-            sList = (List<Map>)m.get("sList");
+            sList = (List<Map>)m.get("sList"); // 一级目录
+
             menu = new Menu();
+
             menu.setText((String)m.get("title"));
             if(sList != null && sList.size()> 0) {
                 addMenuItems(menu,sList);
@@ -107,6 +115,7 @@ public class MainFrameController {
             menuBar.getMenus().add(menu);
         }
     }
+
     void addMenuItems( TreeItem<MyTreeNode> parent, List<Map> mList) {
         List sList;
         TreeItem<MyTreeNode> menu;
@@ -123,7 +132,7 @@ public class MainFrameController {
     public void initMenuTree(List<Map> mList) {
         String role = AppStore.getJwt().getRole();
         MyTreeNode node = new MyTreeNode(null, null,"菜单",0);
-        TreeItem<MyTreeNode> root = new TreeItem<>(node);
+        TreeItem<MyTreeNode> root = new TreeItem<>(node); // 虚拟根节点
         TreeItem<MyTreeNode>  menu;
         int i,j;
         Map m;
@@ -133,18 +142,20 @@ public class MainFrameController {
             sList = (List<Map>)m.get("sList");
             menu = new TreeItem<>(new MyTreeNode(null, (String)m.get("name"), (String)m.get("title"), (Integer)m.get("isLeft")));
             if(sList != null && sList.size()> 0) {
-                addMenuItems(menu,sList);
+                addMenuItems(menu,sList); // 传递一级目录
             }
             root.getChildren().add(menu);
         }
         menuTree.setRoot(root);
         menuTree.setShowRoot(false);
+
         MainFrameController self = this;
+
         menuTree.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
             public void handle(MouseEvent event){
                 // 监听事件
                 Node node = event.getPickResult().getIntersectedNode();
-                TreeItem<MyTreeNode> treeItem = menuTree.getSelectionModel().getSelectedItem();
+                TreeItem<MyTreeNode> treeItem = menuTree.getSelectionModel().getSelectedItem(); // 你选择的item
                 if(treeItem == null)
                     return;
                 MyTreeNode menu = treeItem.getValue();
