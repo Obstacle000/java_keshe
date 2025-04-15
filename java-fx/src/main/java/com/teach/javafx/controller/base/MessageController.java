@@ -30,6 +30,7 @@ public class MessageController {
         text = new Text("");
         text.setFill(Color.BLACK);
         text.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+
         textFLow.getChildren().add(text);
         textFLow.setLineSpacing(5);
         textFLow.setDisable(false);

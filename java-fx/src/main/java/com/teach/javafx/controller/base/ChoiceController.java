@@ -42,7 +42,7 @@ public class ChoiceController {
                 "-fx-border-radius: 5;" +
                 "-fx-border-color: black;");
     }
-
+    //
     @FXML
     public void cancelButtonClick(){
         choice = MessageDialog.CHOICE_CANCEL;
@@ -65,6 +65,7 @@ public class ChoiceController {
         MainApplication.setCanClose(true);
         stage.close();
     }
+
     public Stage getStage() {
         return stage;
     }

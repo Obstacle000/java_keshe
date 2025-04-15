@@ -25,6 +25,7 @@ public class ScoreService {
         this.scoreRepository = scoreRepository;
         this.studentRepository = studentRepository;
     }
+
     public OptionItemList getStudentItemOptionList( DataRequest dataRequest) {
         // 查询所有
         List<Student> sList = studentRepository.findStudentListByNumName("");  //数据库查询操作
@@ -33,6 +34,7 @@ public class ScoreService {
             // 返回格式
             itemList.add(new OptionItem( s.getPersonId(),s.getPersonId()+"", s.getPerson().getNum()+"-"+s.getPerson().getName()));
         }
+
         return new OptionItemList(0, itemList);
     }
 
