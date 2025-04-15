@@ -59,7 +59,7 @@ public class ChoiceController {
         choice = MessageDialog.CHOICE_NO;
         close();
     }
-
+//
     public void close(){
         // setCanClose 就是比如说你打开了一个小窗口的时候不能关闭其父窗口时用
         MainApplication.setCanClose(true);
