@@ -65,7 +65,7 @@ public class ChoiceController {
         MainApplication.setCanClose(true);
         stage.close();
     }
-//
+
     public Stage getStage() {
         return stage;
     }
