@@ -79,6 +79,6 @@ public class ChoiceController {
         // 和上面的close方法配合,会卡在这一行直到用户点了某一个按钮,choice里面有值了
         this.stage.showAndWait();
         return choice;
-    }//
+    }////
 
 }
