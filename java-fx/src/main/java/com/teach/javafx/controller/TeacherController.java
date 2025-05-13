@@ -26,6 +26,7 @@ import javafx.stage.FileChooser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -291,9 +292,46 @@ public class TeacherController extends ToolController {
         onDeleteButtonClick();
     }
 
-    @FXML
-    void onImportButtonClick(ActionEvent event) {
+    public void doExport() {
+        String numName = numNameTextField.getText();
+        DataRequest req = new DataRequest();
+        req.add("numName", numName);
+        byte[] bytes = HttpRequestUtil.requestByteData("/api/teacher/getTeacherListExcl", req);
+        if (bytes != null) {
+            try {
+                FileChooser fileDialog = new FileChooser();
+                fileDialog.setTitle("前选择保存的文件");
+                fileDialog.setInitialDirectory(new File("C:/"));
+                fileDialog.getExtensionFilters().addAll(
+                        new FileChooser.ExtensionFilter("XLSX 文件", "*.xlsx"));
+                File file = fileDialog.showSaveDialog(null);
+                if (file != null) {
+                    FileOutputStream out = new FileOutputStream(file);
+                    out.write(bytes);
+                    out.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
+    }
+
+    @FXML
+    protected void onImportButtonClick() {
+        FileChooser fileDialog = new FileChooser();
+        fileDialog.setTitle("前选择教师数据表");
+        fileDialog.setInitialDirectory(new File("D:/"));
+        fileDialog.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("XLSX 文件", "*.xlsx"));
+        File file = fileDialog.showOpenDialog(null);
+        String paras = "";
+        DataResponse res = HttpRequestUtil.importData("/api/term/importTeacherData", file.getPath(), paras);
+        if (res.getCode() == 0) {
+            MessageDialog.showDialog("上传成功！");
+        } else {
+            MessageDialog.showDialog(res.getMsg());
+        }
     }
 
     @FXML

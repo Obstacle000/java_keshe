@@ -455,15 +455,9 @@ public class StudentService {
     public DataResponse familyMemberSave(DataRequest dataRequest) {
         Map<String,Object> form = dataRequest.getMap("form");
         Integer personId = CommonMethod.getInteger(form,"personId");
-        Integer memberId = CommonMethod.getInteger(form,"memberId");
-        Optional<FamilyMember> op;
-        FamilyMember f = null;
-        if(memberId != null) {
-            op = familyMemberRepository.findById(memberId);
-            if(op.isPresent()) {
-                f = op.get();
-            }
-        }
+        // 根据家庭成员名字获取家庭memberId(默认不重名√√,不会传memberId)
+        FamilyMember f = familyMemberRepository.findByName(form.get("name").toString());
+
         if(f== null) {
             f = new FamilyMember();
             assert personId != null;
@@ -479,9 +473,9 @@ public class StudentService {
     }
 
     public DataResponse familyMemberDelete(DataRequest dataRequest) {
-        Integer memberId = dataRequest.getInteger("memberId");
+        FamilyMember f = familyMemberRepository.findByName(dataRequest.getString("name"));
         Optional<FamilyMember> op;
-        op = familyMemberRepository.findById(memberId);
+        op = familyMemberRepository.findById(f.getMemberId());
         op.ifPresent(familyMemberRepository::delete);
         return CommonMethod.getReturnMessageOK();
     }

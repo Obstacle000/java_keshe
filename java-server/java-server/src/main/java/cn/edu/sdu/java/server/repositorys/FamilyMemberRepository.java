@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember,Integer> {
     List<FamilyMember> findByStudentPersonId(Integer personId);
+
+    FamilyMember findByName(String name);
 }

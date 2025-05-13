@@ -47,7 +47,7 @@ public class HttpRequestUtil {
                 System.out.println("response.statusCode===="+response.statusCode());
                 if (response.statusCode() == 200) {
                     JwtResponse jwt = gson.fromJson(response.body(), JwtResponse.class);
-                    AppStore.setJwt(jwt);
+                    AppStore.setJwt(jwt); // 相当于sessionStorage
                     return null;
                 } else if (response.statusCode() == 401) {
                     return "用户名或密码不存在！";

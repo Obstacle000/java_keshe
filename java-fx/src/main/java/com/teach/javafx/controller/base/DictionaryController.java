@@ -41,6 +41,7 @@ public class DictionaryController {
     }
     @FXML
     public void initialize() {
+        // 拿到根节点
         List<MyTreeNode> dList= HttpRequestUtil.requestTreeNodeList("/api/base/getDictionaryTreeNodeList",new DataRequest());
         if(dList == null || dList.size() == 0)
             return;
@@ -78,7 +79,7 @@ public class DictionaryController {
         TreeItem<MyTreeNode> tNode, tNodes; // 一个是子节点对应Node,一个是孙节点
 
         List<MyTreeNode> sList;
-        List<MyTreeNode> cList = root.getChildren();
+        List<MyTreeNode> cList = root.getChildren(); // 根节点
         int i,j;
         for(i = 0; i < cList.size(); i++) {
             node = cList.get(i);   // 获取根节点的每个子节点
@@ -153,7 +154,7 @@ public class DictionaryController {
         DataRequest req = new DataRequest();
         req.add("id", node.getId());
 
-        // 删除为保存节点常见处理方法
+        // 删除未保存节点常见处理方法
         if (node.getId() == null) {
             // 没有id是临时新建的节点,只需要前端删除即可
             parent.getChildren().remove(selectedItem); // 菜单树上删除

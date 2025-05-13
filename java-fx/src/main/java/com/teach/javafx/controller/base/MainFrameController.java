@@ -68,7 +68,7 @@ public class MainFrameController {
                 item.setId(name);
                 item.setText(title);
 
-                item.setOnAction(this::changeContent);// 点击这个item出发
+                item.setOnAction(this::changeContent);// 点击这个item触发
 
                 parent.getItems().add(item);
             }else {
@@ -130,7 +130,7 @@ public class MainFrameController {
     }
 
     public void initMenuTree(List<Map> mList) {
-        String role = AppStore.getJwt().getRole();
+
         MyTreeNode node = new MyTreeNode(null, null,"菜单",0);
         TreeItem<MyTreeNode> root = new TreeItem<>(node); // 虚拟根节点
         TreeItem<MyTreeNode>  menu;

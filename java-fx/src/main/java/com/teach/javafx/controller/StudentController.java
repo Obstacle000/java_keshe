@@ -4,7 +4,10 @@ import com.teach.javafx.MainApplication;
 import com.teach.javafx.controller.base.LocalDateStringConverter;
 import com.teach.javafx.controller.base.ToolController;
 import com.teach.javafx.request.*;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,13 +27,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.stage.FileChooser;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * StudentController 登录交互控制类 对应 student_panel.fxml  对应于学生管理的后台业务处理的控制器，主要获取数据和保存数据的方法不同
@@ -170,6 +171,7 @@ public class StudentController extends ToolController {
     }
     // 表单回显
     protected void changeStudentInfo() {
+        // personId在这里被赋值
         Map<String,Object> form = dataTableView.getSelectionModel().getSelectedItem();
         if (form == null) {
             clearPanel();
@@ -360,9 +362,14 @@ public class StudentController extends ToolController {
             MessageDialog.showDialog(res.getMsg());
         }
     }
-
     @FXML
     protected void onFamilyButtonClick() {
+        // 判断是否选中了学生
+        if (personId == null) {
+            MessageDialog.showDialog("请先选择学生！");
+            return;
+        }
+
         DataRequest req = new DataRequest();
         req.add("personId", personId);
         DataResponse res = HttpRequestUtil.request("/api/student/getFamilyMemberList", req);
@@ -370,61 +377,133 @@ public class StudentController extends ToolController {
             MessageDialog.showDialog(res.getMsg());
             return;
         }
+
         List<Map> familyList = (List<Map>) res.getData();
         ObservableList<Map> oList = FXCollections.observableArrayList(familyList);
-        Scene scene = null, pScene = null;
-        Stage stage;
-        stage = new Stage();
+        Stage stage = new Stage();
         TableView<Map> table = new TableView<>(oList);
         table.setEditable(true);
-        TableColumn<Map, String> relationColumn = new TableColumn<>("关系");
-        relationColumn.setCellValueFactory(new MapValueFactory("relation"));
-        relationColumn.setCellFactory(TextFieldTableCell.<Map>forTableColumn());
-        relationColumn.setOnEditCommit(event -> {
-            TableView tempTable = event.getTableView();
-            Map tempEntity = (Map) tempTable.getItems().get(event.getTablePosition().getRow());
-            tempEntity.put("relation",event.getNewValue());
+
+        // 可编辑列
+        table.getColumns().add(createEditableColumn("关系", "relation"));
+        table.getColumns().add(createEditableColumn("姓名", "name"));
+        table.getColumns().add(createEditableColumn("性别", "gender"));
+        table.getColumns().add(createEditableColumn("年龄", "age"));
+        table.getColumns().add(createEditableColumn("单位", "unit"));
+
+        // 操作列（删除按钮）
+        TableColumn<Map, Void> actionCol = new TableColumn<>("操作");
+        actionCol.setCellFactory(col -> new TableCell<>() {
+            private final Button deleteButton = new Button("删除");
+
+            {
+                deleteButton.setOnAction(event -> {
+                    Map item = getTableView().getItems().get(getIndex());
+
+
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("确认删除");
+                    alert.setHeaderText(null);
+                    alert.setContentText("你确定要删除该成员吗？");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.isPresent() && result.get() == ButtonType.OK) {
+                        Object name = item.get("name");
+                        if (name != null) {
+                            DataRequest delReq = new DataRequest();
+                            delReq.add("name", name);
+                            DataResponse delRes = HttpRequestUtil.request("/api/student/familyMemberDelete", delReq);
+                            if (delRes.getCode() != 0) {
+                                MessageDialog.showDialog("删除失败: " + delRes.getMsg());
+                                return;
+                            }
+                        }
+                        getTableView().getItems().remove(getIndex());
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void unused, boolean empty) {
+                super.updateItem(unused, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(deleteButton);
+                }
+            }
         });
-        table.getColumns().add(relationColumn);
-        TableColumn<Map, String> nameColumn = new TableColumn<>("姓名");
-        nameColumn.setCellValueFactory(new MapValueFactory<>("name"));
-        nameColumn.setCellFactory(TextFieldTableCell.<Map>forTableColumn());
-        table.getColumns().add(nameColumn);
-        TableColumn<Map, String> genderColumn = new TableColumn<>("性别");
-        genderColumn.setCellValueFactory(new MapValueFactory<>("gender"));
-        genderColumn.setCellFactory(TextFieldTableCell.<Map>forTableColumn());
-        table.getColumns().add(genderColumn);
-        TableColumn<Map, String> ageColumn = new TableColumn<>("年龄");
-        ageColumn.setCellValueFactory(new MapValueFactory<>("age"));
-        ageColumn.setCellFactory(TextFieldTableCell.<Map>forTableColumn());
-        table.getColumns().add(ageColumn);
-        TableColumn<Map, String> unitColumn = new TableColumn<>("单位");
-        unitColumn.setCellValueFactory(new MapValueFactory<>("unit"));
-        unitColumn.setCellFactory(TextFieldTableCell.<Map>forTableColumn());
-        table.getColumns().add(unitColumn);
+        table.getColumns().add(actionCol);
+
         BorderPane root = new BorderPane();
-        FlowPane flowPane = new FlowPane();
-        Button obButton = new Button("确定");
-        obButton.setOnAction(event -> {
-            for(Map map: table.getItems()) {
-                System.out.println("map:"+map);
+        FlowPane flowPane = new FlowPane(10, 10);
+        flowPane.setPadding(new Insets(10));
+
+        // 添加按钮
+        Button addButton = new Button("添加成员");
+        addButton.setOnAction(event -> {
+            Map<String, Object> newMember = new HashMap<>();
+            newMember.put("relation", "");
+            newMember.put("name", "");
+            newMember.put("gender", "");
+            newMember.put("age", "");
+            newMember.put("unit", "");
+            newMember.put("personId", personId);
+            oList.add(newMember);
+        });
+
+        // 保存按钮
+        Button saveButton = new Button("保存");
+        saveButton.setOnAction(event -> {
+            for (Map map : table.getItems()) {
+                Object ageObj = map.get("age");
+                if (ageObj == null || ageObj.toString().trim().isEmpty()) {
+                    MessageDialog.showDialog("年龄不能为空，请填写完整后再保存！");
+                    return;
+                }
+                try {
+                    Integer.parseInt(ageObj.toString().trim());
+                } catch (NumberFormatException e) {
+                    MessageDialog.showDialog("年龄必须是一个合法的数字！");
+                    return;
+                }
+
+                DataRequest saveReq = new DataRequest();
+                saveReq.add("form", map);
+                DataResponse saveRes = HttpRequestUtil.request("/api/student/familyMemberSave", saveReq);
+                if (saveRes.getCode() != 0) {
+                    MessageDialog.showDialog("保存失败: " + saveRes.getMsg());
+                    return;
+                }
             }
             stage.close();
         });
-        flowPane.getChildren().add(obButton);
+
+        flowPane.getChildren().addAll(addButton, saveButton);
         root.setCenter(table);
         root.setBottom(flowPane);
-        scene = new Scene(root, 260, 140);
-        stage.initOwner(MainApplication.getMainStage());
-        stage.initModality(Modality.NONE);
-        stage.setAlwaysOnTop(true);
+
+        Scene scene = new Scene(root, 650, 400);
         stage.setScene(scene);
-        stage.setTitle("成绩录入对话框！");
-        stage.setOnCloseRequest(event -> {
-            MainApplication.setCanClose(true);
-        });
+        stage.initOwner(MainApplication.getMainStage());
+        stage.setTitle("家庭信息编辑");
         stage.showAndWait();
     }
+
+    // 通用方法：创建可编辑列
+    private TableColumn<Map, String> createEditableColumn(String title, String key) {
+        TableColumn<Map, String> column = new TableColumn<>(title);
+        column.setCellValueFactory(new MapValueFactory<>(key));
+        column.setCellFactory(TextFieldTableCell.forTableColumn());
+        column.setOnEditCommit(event -> {
+            Map map = event.getRowValue();
+            map.put(key, event.getNewValue());
+        });
+        return column;
+    }
+
+
+
     public void displayPhoto(){
         DataRequest req = new DataRequest();
         req.add("fileName", "photo/" + personId + ".jpg");  //个人照片显示
