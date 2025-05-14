@@ -25,7 +25,7 @@ import lombok.Setter;
         })
 public class User {
     @Id
-    private Integer personId;
+    private Integer userId;
 
     @ManyToOne()
     @JoinColumn(name = "userTypeId")

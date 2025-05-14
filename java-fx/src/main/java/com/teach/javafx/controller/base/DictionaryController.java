@@ -57,6 +57,7 @@ public class DictionaryController {
         valueColumn.setCellFactory(TextFieldTreeTableCell.<MyTreeNode>forTreeTableColumn());
         titleColumn.setCellFactory(TextFieldTreeTableCell.<MyTreeNode>forTreeTableColumn());
 
+
         idColumn.setOnEditCommit(e->{
             MyTreeNode node = e.getRowValue().getValue();
             node.setId(e.getNewValue());
@@ -69,6 +70,7 @@ public class DictionaryController {
             MyTreeNode node = e.getRowValue().getValue();
             node.setTitle(e.getNewValue());
         });
+
         // 这段代码的目的是 构建一个多层次的树形结构，并将它封装到 TreeItem 中，最终形成一个树形视图
         MyTreeNode root = new MyTreeNode();
         root.setChildren(dList);

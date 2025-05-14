@@ -204,13 +204,13 @@ public class HttpRequestUtil {
      * @param remoteFile 远程文件路径
      * @return 上传操作信息
      */
-    public static DataResponse uploadFile(String uri,String fileName,String remoteFile)  {
+    public static DataResponse uploadFile(String uri,String fileName,String remoteFile,MyTreeNode root)  {
         try {
             Path file = Path.of(fileName);
             HttpClient client = HttpClient.newBuilder().build();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(serverUrl+uri+"?uploader=HttpTestApp&remoteFile="+remoteFile + "&fileName="
-                            + file.getFileName()))
+                    .uri(URI.create(serverUrl+uri+"?uploader="+AppStore.getJwt().getId()+"&remoteFile="+remoteFile + "&fileName="
+                            + file.getFileName()+"&id="+root.getId()+"&value=" + root.getValue()+"&title="+root.getTitle()+"&pid="+root.getPid())) // id是userId,后面的id是节点id
                     .POST(HttpRequest.BodyPublishers.ofFile(file))
                     .headers("Authorization", "Bearer " + AppStore.getJwt().getToken())
                     .build();

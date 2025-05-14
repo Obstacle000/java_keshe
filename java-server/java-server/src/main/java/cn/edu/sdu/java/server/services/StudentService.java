@@ -164,7 +164,7 @@ public class StudentService {
             personId = p.getPersonId();
             String password = encoder.encode("123456");
             u = new User();
-            u.setPersonId(personId);
+            u.setPerson(p);
             u.setUserName(num);
             u.setPassword(password);
             u.setUserType(userTypeRepository.findByName(EUserType.ROLE_STUDENT));

@@ -28,6 +28,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Boolean existsByUserName(String userName);
     @Query(value="select count(*) from User where lastLoginTime >?1")
     Integer countLastLoginTime(String date);
-    @Query(value = "select userType.id, count(personId) from User group by userType.id" )
+    @Query(value = "select userType.id, count(userId) from User group by userType.id" )
     List<?> getCountList();
+
+    User findByUserId(Integer i);
 }

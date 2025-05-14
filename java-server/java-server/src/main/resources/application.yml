@@ -27,7 +27,7 @@ spring:
 
 
 attach:
-  folder: /teach-2025/
+  folder: C:/teach-2025/
 logging:
   config: classpath:loggback.xml
 

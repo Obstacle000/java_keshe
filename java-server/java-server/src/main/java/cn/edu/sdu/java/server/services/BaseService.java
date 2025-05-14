@@ -282,6 +282,7 @@ public class BaseService {
 
     public DataResponse uploadPhoto(byte[] barr,String remoteFile) {
         try {
+            // 输出路径
             OutputStream os = new FileOutputStream(new File(attachFolder + remoteFile));
             os.write(barr);
             os.close();
