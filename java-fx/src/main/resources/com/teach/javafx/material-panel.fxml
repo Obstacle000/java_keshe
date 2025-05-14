@@ -12,7 +12,6 @@
                 <HBox spacing="10">
                     <children>
                         <Button fx:id="uploadButton" text="上传资料" onAction="#onUploadButtonClick" />
-                        <Button fx:id="editTitleButton" text="修改标题" onAction="#onEditTitleButtonClick" />
                         <Button fx:id="deleteButton" text="删除" onAction="#onDeleteButtonClick" />
                         <Button fx:id="downloadButton" text="下载" onAction="#onDownloadButtonClick" />
                         <Button fx:id="addButton" text="添加节点" onAction="#onAddButtonClick"/>

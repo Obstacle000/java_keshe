@@ -132,27 +132,32 @@ public class MaterialService {
         }
     }
 
-    private String saveFileToServer(MultipartFile file) throws IOException {
-
-        return null;
-    }
-
-    // 修改文件或文件夹的标题
-    public DataResponse updateMaterialTitle(@Valid DataRequest dataRequest) {
-
-        return null;
-    }
 
     // 删除文件或文件夹
-    public DataResponse deleteMaterial(@Valid DataRequest dataRequest) {
+    public DataResponse deleteMaterial(@Valid DataRequest req) {
+        Integer materialId = req.getInteger("materialId");
+        if (materialId == null) {
+            return CommonMethod.getReturnMessageError("参数错误");
+        }
 
-        return null;
+        Optional<Material> optionalMaterial = materialRepository.findById(materialId);
+        if (!optionalMaterial.isPresent()) {
+            return CommonMethod.getReturnMessageError("找不到资料");
+        }
+
+        Material material = optionalMaterial.get();
+
+        // 删除物理文件
+        String filePath = attachFolder + "material/" + materialId + ".txt";
+        File file = new File(filePath);
+        if (file.exists()) file.delete();
+
+        // 删除数据库记录
+        materialRepository.deleteById(materialId);
+
+        return CommonMethod.getReturnMessageOK();
     }
 
-    public DataResponse getFileByteData(DataRequest dataRequest) {
-
-        return null;
-    }
 
 
 }

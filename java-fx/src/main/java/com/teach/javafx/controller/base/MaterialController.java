@@ -15,6 +15,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class MaterialController {
@@ -25,8 +27,7 @@ public class MaterialController {
     @FXML private TreeTableColumn<MyTreeNode, String> courseNameColumn;
     @FXML private TreeTableColumn<MyTreeNode, String> titleColumn;
     @FXML private Button uploadButton;
-    @FXML private Button editTitleButton;
-    @FXML private Button deleteButton;
+        @FXML private Button deleteButton;
     @FXML private Button downloadButton;
     @FXML private Button addButton;
 
@@ -38,8 +39,11 @@ public class MaterialController {
         String currentUserRole = AppStore.getJwt().getRole();
         if ("ROLE_STUDENT".equals(currentUserRole)) {
             uploadButton.setVisible(false);
-            editTitleButton.setVisible(false);
             deleteButton.setVisible(false);
+            addButton.setVisible(false);
+
+            // ✅ 禁止学生编辑树表格
+            treeTable.setEditable(false);
         }
 
         // 请求后端获取教学资料树形数据（课程节点 + 文件节点）
@@ -166,21 +170,103 @@ public class MaterialController {
         }
     }
 
-    // 修改资料标题
-    @FXML
-    private void onEditTitleButtonClick() {
-        // 修改资料标题的逻辑
-    }
+
 
     // 删除资料
     @FXML
     private void onDeleteButtonClick() {
-        // 删除资料的逻辑
+        TreeItem<MyTreeNode> selectedItem = treeTable.getSelectionModel().getSelectedItem();
+
+        if (selectedItem == null || selectedItem.getValue() == null) {
+            MessageDialog.showDialog("请先选择一个要删除的节点！");
+            return;
+        }
+
+        MyTreeNode node = selectedItem.getValue();
+
+        // 禁止删除课程节点（即没有 pid 的节点）
+        if (node.getPid() == null) {
+            MessageDialog.showDialog("不能删除课程节点，只能删除具体资料！");
+            return;
+        }
+
+        // 如果该节点内容为空，则直接从前端移除（添加后未填写的情况）
+        boolean isEmptyNode = (node.getTitle() == null || node.getTitle().isBlank())
+                && (node.getValue() == null || node.getValue().isBlank());
+
+        if (isEmptyNode) {
+            selectedItem.getParent().getChildren().remove(selectedItem);
+            MessageDialog.showDialog("已清除未填写内容的空白节点。");
+            return;
+        }
+
+        // 请求后端删除资料（根据 materialId 删除）
+        DataRequest req = new DataRequest();
+        req.add("materialId", node.getId());  // id 就是资料节点 ID
+
+        DataResponse res = HttpRequestUtil.request("/api/material/deleteMaterial", req);
+        if (res.getCode() == 0) {
+            // 前端删除节点
+            selectedItem.getParent().getChildren().remove(selectedItem);
+            MessageDialog.showDialog("删除成功！");
+        } else {
+            MessageDialog.showDialog("删除失败：" + res.getMsg());
+        }
     }
 
+
     // 下载资料
+    // 下载应该从远程文件下载
     @FXML
     private void onDownloadButtonClick() {
         // 下载资料的逻辑
+
+        TreeItem<MyTreeNode> selectedItem = treeTable.getSelectionModel().getSelectedItem();
+
+        if (selectedItem == null || selectedItem.getValue() == null) {
+            MessageDialog.showDialog("请先选择一个节点再下载资料！");
+            return;
+        }
+
+        if(selectedItem.getValue().getPid() == null)
+        {
+            MessageDialog.showDialog("请选择一个子节点再下载资料！");
+            return;
+        }
+
+        MyTreeNode node = selectedItem.getValue();
+        // 不需要把文件名传进去,只要传节点id即可
+        DataRequest req = new DataRequest();
+        req.add("fileName", "material/" + node.getId() + ".txt");  //个人照片显示
+        byte[] bytes = HttpRequestUtil.requestByteData("/api/base/getFileByteData", req);
+
+        if (bytes == null || bytes.length == 0) {
+            MessageDialog.showDialog("下载失败，文件为空！");
+            return;
+        }
+
+        // 弹出保存文件对话框
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("保存资料文件");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("TXT 文件", "*.txt")
+        );
+
+        // 默认保存文件名（可以自定义）
+        fileChooser.setInitialFileName(node.getTitle() + ".txt");
+
+        File saveFile = fileChooser.showSaveDialog(null);
+        if (saveFile == null) {
+            return; // 用户取消保存
+        }
+
+        // 保存文件到本地
+        try (FileOutputStream fos = new FileOutputStream(saveFile)) {
+            fos.write(bytes);
+            MessageDialog.showDialog("下载成功，文件已保存！");
+        } catch (IOException e) {
+            e.printStackTrace();
+            MessageDialog.showDialog("文件保存失败：" + e.getMessage());
+        }
     }
 }

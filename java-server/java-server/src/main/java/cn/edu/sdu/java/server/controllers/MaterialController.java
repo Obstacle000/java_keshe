@@ -44,12 +44,7 @@ public class MaterialController {
 
     }
 
-    // 修改文件标题
-    @PostMapping("/updateMaterialTitle")
-    public DataResponse updateMaterialTitle(@Valid @RequestBody DataRequest dataRequest) {
-        return materialService.updateMaterialTitle(dataRequest);
 
-    }
 
     // 删除文件或目录
     @PostMapping("/deleteMaterial")
@@ -58,10 +53,6 @@ public class MaterialController {
 
     }
 
-    // 下载文件
-    @PostMapping("/getFileByteData")
-    public DataResponse getFileByteData(@Valid @RequestBody DataRequest dataRequest) {
-        return materialService.getFileByteData(dataRequest);
-    }
+
 
 }
