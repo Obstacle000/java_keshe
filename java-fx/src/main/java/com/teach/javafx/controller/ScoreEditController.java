@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MessageController 登录交互控制类 对应 base/message-dialog.fxml
+ * ScoreEditControllerController 成绩管理类 对应 score-edit-panel.fxml
  *  @FXML  属性 对应fxml文件中的
  *  @FXML 方法 对应于fxml文件中的 on***Click的属性
  */

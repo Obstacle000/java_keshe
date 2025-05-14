@@ -8,6 +8,7 @@ import com.teach.javafx.request.MyTreeNode;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
@@ -19,6 +20,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * MaterialController 学习资料树类 对应material-panel.fxml
+ */
 public class MaterialController {
 
     @FXML private TreeTableView<MyTreeNode> treeTable;

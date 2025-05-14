@@ -31,7 +31,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * TeacherController 登录交互控制类 对应 teacher_panel.fxml  对应于教师管理的后台业务处理的控制器，主要获取数据和保存数据的方法不同
+ *
+ * @FXML 属性 对应fxml文件中的
+ * @FXML 方法 对应于fxml文件中的 on***Click的属性
+ */
 public class TeacherController extends ToolController {
     private ImageView photoImageView;
 
