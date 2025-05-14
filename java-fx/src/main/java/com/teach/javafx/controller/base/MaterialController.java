@@ -31,6 +31,8 @@ public class MaterialController {
     @FXML private Button downloadButton;
     @FXML private Button addButton;
 
+
+
     // 初始化树结构或其他必要操作
     @FXML
     public void initialize() {
@@ -48,6 +50,9 @@ public class MaterialController {
 
         // 请求后端获取教学资料树形数据（课程节点 + 文件节点）
         List<MyTreeNode> materialList = HttpRequestUtil.requestTreeNodeList("/api/material/getMaterialTreeNode", new DataRequest());
+
+
+
         if (materialList == null || materialList.isEmpty()) return;
 
         // 设置列数据绑定
@@ -74,28 +79,39 @@ public class MaterialController {
         });
 
         // 构建根节点（虚拟节点）
-        MyTreeNode rootData = new MyTreeNode();
-        rootData.setTitle("根目录");
-        TreeItem<MyTreeNode> rootNode = new TreeItem<>(rootData);
-        rootNode.setExpanded(true);
+        MyTreeNode root = new MyTreeNode();
+        root.setChildren(materialList);
+        TreeItem<MyTreeNode> rootNode = new TreeItem<>(root);
 
-        // 构建一、二级节点（课程 -> 文件）
-        for (MyTreeNode courseNode : materialList) {
-            TreeItem<MyTreeNode> courseItem = new TreeItem<>(courseNode);
-            if (courseNode.getChildren() != null) {
-                for (MyTreeNode fileNode : courseNode.getChildren()) {
-                    TreeItem<MyTreeNode> fileItem = new TreeItem<>(fileNode);
-                    courseItem.getChildren().add(fileItem);
-                }
+        MyTreeNode node;
+        TreeItem<MyTreeNode> tNode, tNodes; // 一个是子节点对应Node,一个是孙节点
+
+        List<MyTreeNode> sList;
+        List<MyTreeNode> cList = root.getChildren(); // 根节点
+        int i,j;
+        for(i = 0; i < cList.size(); i++) {
+            node = cList.get(i);   // 获取根节点的每个子节点
+            tNode = new TreeItem<>(node);   // 创建子节点对应的 TreeItem
+            sList = node.getChildren();     // 获取子节点的子节点（即孙节点）
+            for(j = 0; j < sList.size(); j++) {
+                tNodes = new TreeItem<>(sList.get(j));  // 创建孙节点对应的 TreeItem
+                tNode.getChildren().add(tNodes);        // 将孙节点加入到子节点的子节点中
             }
-            rootNode.getChildren().add(courseItem);
+            rootNode.getChildren().add(tNode);  // 将子节点加入到根节点的子节点中
         }
 
         // 设置 TreeTableView
+        rootNode.setExpanded(true);
         treeTable.setRoot(rootNode);
-        treeTable.setShowRoot(false); // 不显示虚拟根节点
+
         treeTable.getSelectionModel().selectFirst();
         treeTable.setPlaceholder(new Label("暂无资料，请点击上传添加"));
+
+        TreeTableView.TreeTableViewSelectionModel<MyTreeNode> tsm = treeTable.getSelectionModel();
+        ObservableList<Integer> list = tsm.getSelectedIndices(); // 展示列
+        list.addListener((ListChangeListener.Change<? extends Integer> change) -> {
+            System.out.println("Row selection has changed");
+        });
     }
 
     // 自动聚焦并编辑某一行的第一个单元格。
@@ -108,7 +124,7 @@ public class MaterialController {
         treeTable.edit(newRowIndex, firstCol); // 让这一行的第一列进入编辑模式
     }
     @FXML
-    public void onAddButtonClick(){
+    public void onAddButtonClick() {
         if (treeTable.getSelectionModel().isEmpty()) {
             MessageDialog.showDialog("选择一个要添加的的行");
             return;
@@ -125,6 +141,8 @@ public class MaterialController {
         selectedItem.setExpanded(true); // 让指定的 TreeItem 节点 展开（显示其子节点）。
         this.editItem(item);
     }
+
+
 
 
     // 上传资料 - 仅仅是吧本地文件用io流写到某一个指定文件(模拟云服务)
@@ -184,11 +202,11 @@ public class MaterialController {
 
         MyTreeNode node = selectedItem.getValue();
 
-        // 禁止删除课程节点（即没有 pid 的节点）
-        if (node.getPid() == null) {
-            MessageDialog.showDialog("不能删除课程节点，只能删除具体资料！");
-            return;
-        }
+//        // 禁止删除课程节点（即没有 pid 的节点）
+//        if (node.getPid() == null) {
+//            MessageDialog.showDialog("不能删除课程节点，只能删除具体资料！");
+//            return;
+//        }
 
         // 如果该节点内容为空，则直接从前端移除（添加后未填写的情况）
         boolean isEmptyNode = (node.getTitle() == null || node.getTitle().isBlank())
