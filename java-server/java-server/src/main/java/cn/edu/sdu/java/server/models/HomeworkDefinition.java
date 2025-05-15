@@ -27,10 +27,10 @@ public class HomeworkDefinition {
     private Course course;
 
     @Size(max = 200)
-    @NotBlank
+
     private String homeworkContent;
 
     @ManyToOne
     @JoinColumn(name = "person")
-    private Teacher teacher;
+    private Person person;
 }

@@ -15,5 +15,5 @@ public interface HomeworkDefinitionRepository extends JpaRepository<HomeworkDefi
 
     Optional<HomeworkDefinition> findByDefinitionId(Integer definitionId);
     Optional<HomeworkDefinition> findByCourseCourseId(Integer courseId);
-    List<HomeworkDefinition> findByTeacherPersonId(Integer personId);
+
 }

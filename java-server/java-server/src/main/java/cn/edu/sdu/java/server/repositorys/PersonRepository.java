@@ -1,6 +1,8 @@
 package cn.edu.sdu.java.server.repositorys;
 
 import cn.edu.sdu.java.server.models.Person;
+import cn.edu.sdu.java.server.models.Student;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,4 +19,10 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 
     @Query(value = "from Person where ?1='' or num like %?1% or name like %?1% ")
     List<Person> findPersonListByNumName(String s);
+
+    Optional<Person> findByPersonId(Integer personId);
+
+
+
+
 }

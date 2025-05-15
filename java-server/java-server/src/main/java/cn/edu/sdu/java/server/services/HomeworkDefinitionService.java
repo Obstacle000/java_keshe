@@ -8,6 +8,7 @@ import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
@@ -34,6 +35,8 @@ HomeworkService
 @Service
 public class HomeworkDefinitionService {
     @Autowired
+    PersonRepository personRepository;
+    @Autowired
     HomeworkSubmissionRepository homeworkSubmissionRepository;
     @Autowired
     StudentRepository studentRepository;
@@ -48,39 +51,39 @@ public class HomeworkDefinitionService {
 
     public DataResponse getHomeworkList(DataRequest dataRequest){
         Integer personId = dataRequest.getInteger("personId");
-        List<HomeworkDefinition> cList = homeworkDefinitionRepository.findByTeacherPersonId(personId);  //数据库查询操作
+        List<HomeworkDefinition> cList = homeworkDefinitionRepository.findAll();  //数据库查询操作
         List<Map<String,Object>> dataList = new ArrayList<>();
         Map<String,Object> m;
+        String name = personRepository.findById(personId).get().getName();
         for (HomeworkDefinition h : cList) {
             m = new HashMap<>();
-            m.put("definitionId", h.getDefinitionId()+"");
-            m.put("homeworkTitle",h.getHomeworkTitle());
-            m.put("course",h.getCourse());
-            m.put("homeworkContent",h.getHomeworkContent());
+            m.put("num", h.getDefinitionId()+"");
+            m.put("title",h.getHomeworkTitle());
+            m.put("course",h.getCourse().getName());
+            m.put("teacher",name);
             dataList.add(m);
         }
         return CommonMethod.getReturnData(dataList);
     }
 
     public DataResponse homeworkSave(DataRequest dataRequest){
-        Integer definitionId = dataRequest.getInteger("definitionId");
-        String homeworkTitle = dataRequest.getString("homeworkTitle");
-        String homeworkContent = dataRequest.getString("homeworkContent");
-        Integer courseId = dataRequest.getInteger("courseId");
+        Integer definitionId = dataRequest.getInteger("num");
+        String homeworkTitle = dataRequest.getString("title");
+        String courseName = dataRequest.getString("course");
         Integer personId = dataRequest.getInteger("personId");
-        Optional<Course> h = courseRepository.findByCourseId(courseId);
-        Optional<Teacher> t = teacherRepository.findByPersonPersonId(personId);
+        Optional<Course> h = courseRepository.findByName(courseName);
+        Optional<Person> t = personRepository.findByPersonId(personId);
         Course course;
-        Teacher teacher;
+        Person person;
         if (h.isPresent()){
             course = h.get();
         }else{
             course = new Course();
         }
         if (t.isPresent()){
-            teacher = t.get();
+            person = t.get();
         }else{
-            teacher = new Teacher();
+            person = new Person();
         }
         Optional<HomeworkDefinition> op;
         HomeworkDefinition c= null;
@@ -93,9 +96,8 @@ public class HomeworkDefinitionService {
         if(c== null)
             c = new HomeworkDefinition();
         c.setHomeworkTitle(homeworkTitle);
-        c.setHomeworkContent(homeworkContent);
         c.setCourse(course);
-        c.setTeacher(teacher);
+        c.setPerson(person);
         homeworkDefinitionRepository.save(c);
 
 
@@ -103,43 +105,56 @@ public class HomeworkDefinitionService {
 
         return CommonMethod.getReturnMessageOK();
     }
-
-    public DataResponse homeworkDelete(DataRequest dataRequest){
-        Integer definitionId = dataRequest.getInteger("definitionId");  //获取student_id值
-        HomeworkDefinition h = null;
-        Optional<HomeworkDefinition> op;
+    @Transactional
+    public DataResponse homeworkDelete(DataRequest dataRequest) {
+        Integer definitionId = dataRequest.getInteger("num");
         if (definitionId != null) {
-            op = homeworkDefinitionRepository.findById(definitionId);   //查询获得实体对象
-            if(op.isPresent()) {
-                h = op.get();
+            Optional<HomeworkDefinition> op = homeworkDefinitionRepository.findById(definitionId);
+            if (op.isPresent()) {
+                HomeworkDefinition h = op.get();
+                // 第一步：删除关联的提交记录
+                try {
+                    homeworkSubmissionRepository.deleteByHomeworkDefinitionDefinitionId(definitionId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // 第二步：删除作业定义
                 homeworkDefinitionRepository.delete(h);
             }
         }
-        return CommonMethod.getReturnMessageOK();  //通知前端操作正常
+        return CommonMethod.getReturnMessageOK();  // 通知前端操作正常
     }
 
-    public DataResponse homeworkAdd(@Valid @RequestBody DataRequest dataRequest){
-        String homeworkTitle = dataRequest.getString("homeworkTitle");
-        Integer courseId = dataRequest.getInteger("courseId");
-        String homeworkContent = dataRequest.getString("homeworkContent");
+
+    public DataResponse homeworkAdd(DataRequest dataRequest){
+        String homeworkTitle = dataRequest.getString("title");
+        String course = dataRequest.getString("course");
+
         Integer personId = dataRequest.getInteger("personId");
 
-        if (homeworkTitle == null || homeworkContent == null) {
-            return new DataResponse(1,null,"作业标题或内容不能为空！");
+        if (homeworkTitle == null ) {
+            return new DataResponse(1,null,"作业标题不能为空！");
         }
 
         // 构建课程对象（假设你有 Homework 实体类）
         HomeworkDefinition homework = new HomeworkDefinition();
         homework.setHomeworkTitle(homeworkTitle);
-        homework.setHomeworkContent(homeworkContent);
 
-        Optional<Course> cOp = courseRepository.findById(courseId);
-        Optional<Teacher> tOp = teacherRepository.findByPersonPersonId(personId);
-        cOp.ifPresent(homework::setCourse);
-        tOp.ifPresent(homework::setTeacher);
+        Optional<Course> cOp = courseRepository.findByName(course);
+        Optional<Person> pOp = personRepository.findByPersonId(personId);
+        if (cOp.isPresent()) {
+            homework.setCourse(cOp.get());
+        }else {
+            return CommonMethod.getReturnMessageError("请正确填写课程名");
+        }
+        if (pOp.isPresent()) {
+            homework.setPerson(pOp.get());
+        }
 
         // 保存到数据库（假设你有 homeworkService）
+
         homeworkDefinitionRepository.save(homework);
+
 
         // 导入学生到submission
         List<Student> Students = studentRepository.findAll();

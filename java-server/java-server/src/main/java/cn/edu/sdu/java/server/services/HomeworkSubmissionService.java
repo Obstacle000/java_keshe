@@ -19,13 +19,15 @@ public class HomeworkSubmissionService {
     private final HomeworkDefinitionRepository definitionRepository;
 
     private final StudentRepository studentRepository;
+    private final PersonRepository personRepository;
 
     public HomeworkSubmissionService(HomeworkSubmissionRepository submissionRepository,
                                      HomeworkDefinitionRepository definitionRepository,
-                                     StudentRepository studentRepository) {
+                                     StudentRepository studentRepository, PersonRepository personRepository) {
         this.submissionRepository = submissionRepository;
         this.definitionRepository = definitionRepository;
         this.studentRepository = studentRepository;
+        this.personRepository = personRepository;
     }
 
     /**
@@ -37,42 +39,58 @@ public class HomeworkSubmissionService {
      */
     public DataResponse submitHomeworkCompletion(DataRequest dataRequest) {
 
-        String answer = dataRequest.getString("answer");
-        // 获取作业定义
+        String answer = dataRequest.getString("answer");//获取作业定义
         Student student = new Student();
         if (studentRepository.findByPersonPersonId(dataRequest.getInteger("personId")).isPresent())
             student = studentRepository.findByPersonPersonId(dataRequest.getInteger("personId")).get();
+
         Integer studentId = student.getPersonId();
         Integer definitionId = dataRequest.getInteger("definitionId");
-
         Optional<HomeworkSubmission> oSubmission = submissionRepository.findByStudentPersonIdAndHomeworkDefinitionDefinitionId(studentId, definitionId);
         HomeworkSubmission submission = new HomeworkSubmission();
-
         if (oSubmission.isPresent()) {
             submission = oSubmission.get();
         }
-        // 更新状态
-        submission.setCompleted(true);
-        submission.setStudentAnswer(answer);
+            submission.setCompleted(true);
+            submission.setStudentAnswer(answer);
+            submissionRepository.save(submission);
+            return CommonMethod.getReturnMessageOK();
 
-        submissionRepository.save(submission);
-        return CommonMethod.getReturnMessageOK();
     }
-
     /**
      * 教师查看某作业的所有学生提交情况
      * definitionId 作业定义ID
      */
-    public DataResponse getHomeworkSubmissions(DataRequest dataRequest) {
+    public DataResponse getHomeworkSubmissions(@Valid DataRequest dataRequest) {
         Integer definitionId = dataRequest.getInteger("definitionId");
         if (definitionId == null) {
             return CommonMethod.getReturnMessageError("缺少作业定义ID");
         }
+
+        // 查询未提交该作业的学生ID
         List<Integer> uncompletedStudentIds = submissionRepository.findUncompletedStudentIdsByDefinitionId(definitionId);
         if (uncompletedStudentIds.isEmpty()) {
             return CommonMethod.getReturnData(Collections.emptyList());
         }
+
+        // 查询学生信息
         List<Student> uncompletedList = studentRepository.findAllById(uncompletedStudentIds);
-        return CommonMethod.getReturnData(uncompletedList);
+
+
+        // 封装为 Map 并加上 status 字段
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Student student : uncompletedList) {
+            Integer personId = student.getPersonId();
+            Person person = personRepository.findById(personId).get();
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("num", person.getNum());
+            map.put("studentName", person.getName());
+            map.put("status", false); // ✅ 未提交
+            result.add(map);
+        }
+
+        return CommonMethod.getReturnData(result);
     }
 }
+
