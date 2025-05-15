@@ -6,6 +6,7 @@ import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.repositorys.*;
 import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -32,6 +33,10 @@ HomeworkService
 
 @Service
 public class HomeworkDefinitionService {
+    @Autowired
+    HomeworkSubmissionRepository homeworkSubmissionRepository;
+    @Autowired
+    StudentRepository studentRepository;
     private final HomeworkDefinitionRepository homeworkDefinitionRepository;
     private final CourseRepository courseRepository;
     private final TeacherRepository teacherRepository;
@@ -92,6 +97,10 @@ public class HomeworkDefinitionService {
         c.setCourse(course);
         c.setTeacher(teacher);
         homeworkDefinitionRepository.save(c);
+
+
+
+
         return CommonMethod.getReturnMessageOK();
     }
 
@@ -131,6 +140,18 @@ public class HomeworkDefinitionService {
 
         // 保存到数据库（假设你有 homeworkService）
         homeworkDefinitionRepository.save(homework);
+
+        // 导入学生到submission
+        List<Student> Students = studentRepository.findAll();
+
+        List<HomeworkSubmission> submissionList = new ArrayList<>();
+        for (Student s : Students) {
+            HomeworkSubmission hs = new HomeworkSubmission();
+            hs.setStudent(s);
+            hs.setHomeworkDefinition(homework);
+            submissionList.add(hs);
+        }
+        homeworkSubmissionRepository.saveAll(submissionList);
 
         return CommonMethod.getReturnMessageOK();
     }

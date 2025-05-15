@@ -17,6 +17,7 @@ import java.util.*;
 public class HomeworkSubmissionService {
     private final HomeworkSubmissionRepository submissionRepository;
     private final HomeworkDefinitionRepository definitionRepository;
+
     private final StudentRepository studentRepository;
 
     public HomeworkSubmissionService(HomeworkSubmissionRepository submissionRepository,
@@ -35,34 +36,23 @@ public class HomeworkSubmissionService {
      * answer    学生答案（可选）
      */
     public DataResponse submitHomeworkCompletion(DataRequest dataRequest) {
+
+        String answer = dataRequest.getString("answer");
         // 获取作业定义
-        Student student;
+        Student student = new Student();
         if (studentRepository.findByPersonPersonId(dataRequest.getInteger("personId")).isPresent())
             student = studentRepository.findByPersonPersonId(dataRequest.getInteger("personId")).get();
-        else
-            student = new Student();
+        Integer studentId = student.getPersonId();
         Integer definitionId = dataRequest.getInteger("definitionId");
-        Boolean completed = dataRequest.getBoolean("completed");
-        String answer = dataRequest.getString("answer");
 
-        HomeworkDefinition definition;
-        if (definitionRepository.findByDefinitionId(definitionId).isPresent())
-            definition = definitionRepository.findByDefinitionId(definitionId).get();
-        else{
-            definition = new HomeworkDefinition();
+        Optional<HomeworkSubmission> oSubmission = submissionRepository.findByStudentPersonIdAndHomeworkDefinitionDefinitionId(studentId, definitionId);
+        HomeworkSubmission submission = new HomeworkSubmission();
+
+        if (oSubmission.isPresent()) {
+            submission = oSubmission.get();
         }
-        // 查找或创建提交记录
-        HomeworkSubmission submission = submissionRepository
-                .findByStudentAndHomeworkDefinition(student, definition)
-                .orElseGet(() -> {
-                    HomeworkSubmission newSubmission = new HomeworkSubmission();
-                    newSubmission.setStudent(student);
-                    newSubmission.setHomeworkDefinition(definition);
-                    return newSubmission;
-                });
-
         // 更新状态
-        submission.setCompleted(completed);
+        submission.setCompleted(true);
         submission.setStudentAnswer(answer);
 
         submissionRepository.save(submission);
@@ -71,17 +61,18 @@ public class HomeworkSubmissionService {
 
     /**
      * 教师查看某作业的所有学生提交情况
-     *  definitionId 作业定义ID
+     * definitionId 作业定义ID
      */
     public DataResponse getHomeworkSubmissions(DataRequest dataRequest) {
         Integer definitionId = dataRequest.getInteger("definitionId");
-        HomeworkDefinition definition;
-        if (definitionRepository.findByDefinitionId(definitionId).isPresent())
-            definition = definitionRepository.findByDefinitionId(definitionId).get();
-        else{
-            definition = new HomeworkDefinition();
+        if (definitionId == null) {
+            return CommonMethod.getReturnMessageError("缺少作业定义ID");
         }
-        List<HomeworkSubmission> submissionList = submissionRepository.findByHomeworkDefinition(definition);
-        return CommonMethod.getReturnData(submissionList);
+        List<Integer> uncompletedStudentIds = submissionRepository.findUncompletedStudentIdsByDefinitionId(definitionId);
+        if (uncompletedStudentIds.isEmpty()) {
+            return CommonMethod.getReturnData(Collections.emptyList());
+        }
+        List<Student> uncompletedList = studentRepository.findAllById(uncompletedStudentIds);
+        return CommonMethod.getReturnData(uncompletedList);
     }
 }
