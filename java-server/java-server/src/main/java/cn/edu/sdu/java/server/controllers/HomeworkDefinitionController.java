@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/homeworkDefinition")
-
 public class HomeworkDefinitionController {
     private final HomeworkDefinitionService homeworkDefinitionService;
     public HomeworkDefinitionController(HomeworkDefinitionService homeworkDefinitionService){

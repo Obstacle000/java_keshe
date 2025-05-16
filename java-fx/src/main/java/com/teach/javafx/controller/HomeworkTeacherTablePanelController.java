@@ -141,7 +141,7 @@ public class HomeworkTeacherTablePanelController {
     }
     private void showSubmissionDialog(List<Map<String, Object>> submissions) {
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("作业提交详情");
+        dialog.setTitle("未提交作业学生名单");
 
         TableView<Map<String, Object>> tableView = new TableView<>();
 

@@ -86,7 +86,7 @@ public class HomeworkSubmissionService {
             Map<String, Object> map = new HashMap<>();
             map.put("num", person.getNum());
             map.put("studentName", person.getName());
-            map.put("status", false); // ✅ 未提交
+            map.put("status", false);
             result.add(map);
         }
 

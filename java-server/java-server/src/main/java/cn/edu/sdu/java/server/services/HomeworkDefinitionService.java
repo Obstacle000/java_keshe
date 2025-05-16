@@ -6,6 +6,7 @@ import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.repositorys.*;
 import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ HomeworkService
  */
 
 @Service
+@RequiredArgsConstructor
 public class HomeworkDefinitionService {
     @Autowired
     PersonRepository personRepository;
@@ -43,11 +45,7 @@ public class HomeworkDefinitionService {
     private final HomeworkDefinitionRepository homeworkDefinitionRepository;
     private final CourseRepository courseRepository;
     private final TeacherRepository teacherRepository;
-    public HomeworkDefinitionService(HomeworkDefinitionRepository homeworkDefinitionRepository,CourseRepository courseRepository,TeacherRepository teacherRepository){
-        this.homeworkDefinitionRepository = homeworkDefinitionRepository;
-        this.courseRepository = courseRepository;
-        this.teacherRepository = teacherRepository;
-    }
+
 
     public DataResponse getHomeworkList(DataRequest dataRequest){
         Integer personId = dataRequest.getInteger("personId");
