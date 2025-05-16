@@ -49,14 +49,25 @@ public class StudentSignUpService {
         }
 
         // 判断是否已经报名
-        boolean exists = activitySignupRepository.existsByStudentPersonIdAndActivityActivityId(student.getPersonId(), activityId);
-        if (exists) {
+        ActivitySignup as = activitySignupRepository.findByActivityActivityId(activityId);
+        Boolean isSignedUp = as.getStatus();
+        if(as != null&&isSignedUp) {
+            // 学生报名过,且在报名中的状态
             return CommonMethod.getReturnMessageError("学生已报名该活动");
         }
+        else if(!isSignedUp) {
+            // 学生报名后取消报名了,记录还在,此时需要改成true
+            as.setStatus(true);
+            activitySignupRepository.save(as);
+            return CommonMethod.getReturnMessageOK("报名成功");
 
+        }
+
+        // 学生第一次报名
         ActivitySignup signup = new ActivitySignup();
         signup.setStudent(student);
         signup.setActivity(activityOpt.get());
+        signup.setStatus(true);
         try {
             activitySignupRepository.save(signup);
         } catch (Exception e) {
@@ -81,24 +92,25 @@ public class StudentSignUpService {
         if (signupOpt.isEmpty()) {
             return CommonMethod.getReturnMessageError("报名信息不存在");
         }
-
-        activitySignupRepository.delete(signupOpt.get());
+        ActivitySignup activitySignup = signupOpt.get();
+        activitySignup.setStatus(false);
+        activitySignupRepository.save(activitySignup);
         return CommonMethod.getReturnMessageOK("取消报名成功");
     }
 
-    // 获取某活动的报名学生列表
-    public DataResponse getSignupList(@Valid DataRequest dataRequest) {
-        Integer activityId = dataRequest.getInteger("activityId");
-
-        List<ActivitySignup> signups = activitySignupRepository.findByActivityActivityId(activityId);
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (ActivitySignup signup : signups) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("studentNum", signup.getStudent().getPerson().getNum());
-            map.put("name", signup.getStudent().getPerson().getName());
-            map.put("signupId", signup.getSignupId());
-            result.add(map);
-        }
-        return CommonMethod.getReturnData(result);
-    }
+//    // 获取某活动的报名学生列表
+//    public DataResponse getSignupList(@Valid DataRequest dataRequest) {
+//        Integer activityId = dataRequest.getInteger("activityId");
+//
+//        List<ActivitySignup> signups = activitySignupRepository.findByActivityActivityId(activityId);
+//        List<Map<String, Object>> result = new ArrayList<>();
+//        for (ActivitySignup signup : signups) {
+//            Map<String, Object> map = new HashMap<>();
+//            map.put("studentNum", signup.getStudent().getPerson().getNum());
+//            map.put("name", signup.getStudent().getPerson().getName());
+//            map.put("signupId", signup.getSignupId());
+//            result.add(map);
+//        }
+//        return CommonMethod.getReturnData(result);
+//    }
 }

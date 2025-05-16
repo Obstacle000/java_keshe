@@ -28,4 +28,7 @@ public class ActivitySignup {
     private Student student;
 
     private Date signupTime;
+
+    @Column(name = "status")
+    private Boolean status;
 }

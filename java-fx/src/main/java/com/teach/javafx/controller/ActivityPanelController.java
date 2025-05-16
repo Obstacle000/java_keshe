@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -129,13 +130,22 @@ public class ActivityPanelController {
         signupColumn.setCellValueFactory(param -> new ReadOnlyStringWrapper("")); // 内容空，因为按钮在cellFactory里显示
 
         signupColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button signupBtn = new Button();
+            private final Button signupBtn = new Button("报名");
+            private final Button cancelSignupBtn = new Button("取消报名");
+            private final HBox buttonBox = new HBox(5); // 水平排列按钮，间距5
 
             {
                 signupBtn.setOnAction(event -> {
                     Map<String, Object> row = getTableView().getItems().get(getIndex());
-                    handleSignupButtonClick(row);
+                    handleSignup(row);
                 });
+
+                cancelSignupBtn.setOnAction(event -> {
+                    Map<String, Object> row = getTableView().getItems().get(getIndex());
+                    handleCancelSignup(row);
+                });
+
+                buttonBox.getChildren().addAll(signupBtn, cancelSignupBtn);
             }
 
             @Override
@@ -145,20 +155,14 @@ public class ActivityPanelController {
                     setGraphic(null);
                 } else {
                     Map<String, Object> row = getTableView().getItems().get(getIndex());
-                    updateButtonText(row);
-                    setGraphic(signupBtn);
-                }
-            }
-
-            private void updateButtonText(Map<String, Object> row) {
-                Boolean isSignedUp = (Boolean) row.get("isSignedUp");
-                if (isSignedUp != null && isSignedUp) {
-                    signupBtn.setText("取消报名");
-                } else {
-                    signupBtn.setText("报名");
+                    Boolean isSignedUp = (Boolean) row.get("isSignedUp");
+                    signupBtn.setVisible(isSignedUp == null || !isSignedUp);
+                    cancelSignupBtn.setVisible(Boolean.TRUE.equals(isSignedUp));
+                    setGraphic(buttonBox);
                 }
             }
         });
+
         // 表格选中监听，控制更新和删除按钮状态
         dataTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             boolean selected = newSel != null;
@@ -173,17 +177,12 @@ public class ActivityPanelController {
     }
     private void loadActivityData() {
         DataRequest req = new DataRequest();
-        // 如需传用户id，可添加参数
+        req.add("personId", AppStore.getJwt().getId());
+
         DataResponse res = HttpRequestUtil.request("/api/activity/getActivityList", req);
         if (res != null && res.getCode() == 0) {
             activityList = (List<Map<String, Object>>) res.getData();
             if (activityList != null) {
-                // 给每条数据添加 isSignedUp 字段，默认 false
-                for (Map<String, Object> item : activityList) {
-                    if (!item.containsKey("isSignedUp")) {
-                        item.put("isSignedUp", false);
-                    }
-                }
                 dataTableView.getItems().setAll(activityList);
             }
         } else {
@@ -191,6 +190,7 @@ public class ActivityPanelController {
             alert.showAndWait();
         }
     }
+
 
     private void showDetail(Map<String, Object> activity) {
         // 从表格拿到noticeId
@@ -223,49 +223,58 @@ public class ActivityPanelController {
             alert.showAndWait();
         }
     }
-    private void handleSignupButtonClick(Map<String, Object> row) {
+    private void handleSignup(Map<String, Object> row) {
         Integer personId = AppStore.getJwt().getId();
         Object activityIdObj = row.get("activityId");
-        int activityId = 0;
-        if (activityIdObj instanceof Number) {
-            activityId = ((Number) activityIdObj).intValue();
-        } else {
-            // 如果不是数字，尝试转字符串后解析（或者报错处理）
-            try {
-                activityId = Integer.parseInt(activityIdObj.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-                showAlert("活动ID格式错误", Alert.AlertType.ERROR);
-                return;
-            }
-        }
-
-
-        Boolean isSignedUp = (Boolean) row.get("isSignedUp");
-        if (isSignedUp == null) {
-            showAlert("活动报名状态未知", Alert.AlertType.ERROR);
-            return;
-        }
-
-        String apiUrl = isSignedUp ? "/api/signup/cancelSignup" : "/api/signup/newSignup";
+        int activityId = parseActivityId(activityIdObj);
+        if (activityId == -1) return;
 
         DataRequest req = new DataRequest();
         req.add("personId", personId);
         req.add("activityId", activityId);
 
-        DataResponse res = HttpRequestUtil.request(apiUrl, req);
+        DataResponse res = HttpRequestUtil.request("/api/signup/newSignup", req);
         if (res != null && res.getCode() == 0) {
-            String msg = isSignedUp ? "取消报名成功" : "报名成功";
-            showAlert(msg, Alert.AlertType.INFORMATION);
-
-            // 更新报名状态，切换
-            row.put("isSignedUp", !isSignedUp);
-
-            // 刷新表格按钮文字
+            showAlert("报名成功", Alert.AlertType.INFORMATION);
+            row.put("isSignedUp", true);
             dataTableView.refresh();
             loadActivityData();
         } else {
-            showAlert("操作失败：" + (res == null ? "无响应" : res.getMsg()), Alert.AlertType.ERROR);
+            showAlert("报名失败：" + (res == null ? "无响应" : res.getMsg()), Alert.AlertType.ERROR);
+        }
+    }
+
+    private void handleCancelSignup(Map<String, Object> row) {
+        Integer personId = AppStore.getJwt().getId();
+        Object activityIdObj = row.get("activityId");
+        int activityId = parseActivityId(activityIdObj);
+        if (activityId == -1) return;
+
+        DataRequest req = new DataRequest();
+        req.add("personId", personId);
+        req.add("activityId", activityId);
+
+        DataResponse res = HttpRequestUtil.request("/api/signup/cancelSignup", req);
+        if (res != null && res.getCode() == 0) {
+            showAlert("取消报名成功", Alert.AlertType.INFORMATION);
+            row.put("isSignedUp", false);
+            dataTableView.refresh();
+            loadActivityData();
+        } else {
+            showAlert("取消报名失败：" + (res == null ? "无响应" : res.getMsg()), Alert.AlertType.ERROR);
+        }
+    }
+
+    private int parseActivityId(Object activityIdObj) {
+        if (activityIdObj instanceof Number) {
+            return ((Number) activityIdObj).intValue();
+        }
+        try {
+            return Integer.parseInt(activityIdObj.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("活动ID格式错误", Alert.AlertType.ERROR);
+            return -1;
         }
     }
 

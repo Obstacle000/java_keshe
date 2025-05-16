@@ -30,9 +30,9 @@ public class StudentSignUpController {
         return studentSignUpService.cancelSignUp(dataRequest);
     }
 
-    @PostMapping("/getSignupList")
+    /*@PostMapping("/getSignupList")
     public DataResponse getSignupList(@Valid @RequestBody DataRequest dataRequest) {
         return studentSignUpService.getSignupList(dataRequest);
-    }
+    }*/
 
 }

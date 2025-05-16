@@ -1,7 +1,9 @@
 package cn.edu.sdu.java.server.services;
 
 import cn.edu.sdu.java.server.models.Activity;
+import cn.edu.sdu.java.server.models.ActivitySignup;
 import cn.edu.sdu.java.server.models.Notice;
+import cn.edu.sdu.java.server.models.Student;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.repositorys.ActivityRepository;
@@ -23,8 +25,12 @@ public class ActivityService {
     StudentSignUpRepository studentSignUpRepository;
     @Autowired
     NoticeRepository noticeRepository;
+    @Autowired
+    StudentRepository studentRepository;
 
     public DataResponse getActivityList(@Valid DataRequest dataRequest) {
+        Integer personId = dataRequest.getInteger("personId");
+
         List<Activity> lists = activityRepository.findAll();
         List<Map<String,Object>> dataList = new ArrayList<>();
         Map<String,Object> m;
@@ -32,6 +38,12 @@ public class ActivityService {
             // 根据活动去参加表里获取人数
             m = new HashMap<>();
             long count = studentSignUpRepository.countByActivityId(activity.getActivityId());
+            ActivitySignup as = studentSignUpRepository.findByActivityActivityId(activity.getActivityId());
+            if(as!=null)
+            {
+                m.put("isSignedUp",as.getStatus());
+
+            }
             m.put("signupCount",count);
             m.put("activityId",activity.getActivityId());
             m.put("title",activity.getTitle());
