@@ -11,33 +11,15 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teach.javafx.controller.HomeworkTeacherTablePanelController">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teach.javafx.controller.HomeworkStudentTablePanelController">
     <top>
         <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0">
             <children>
-                <FlowPane alignment="TOP_LEFT" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#onSaveButtonClick" text="保存">
-                            <FlowPane.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </FlowPane.margin>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#onAddButtonClick" text="添加">
-                            <FlowPane.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </FlowPane.margin>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#onDeleteButtonClick" text="删除">
-                            <FlowPane.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </FlowPane.margin>
-                        </Button>
-                    </children>
-                </FlowPane>
+                <FlowPane alignment="TOP_LEFT" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
                 <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
                 <FlowPane alignment="TOP_RIGHT" prefHeight="40.0" prefWidth="500.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Label text="课程">
+                        <Label text="教师">
                             <FlowPane.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </FlowPane.margin>
@@ -67,6 +49,7 @@
                 <TableColumn fx:id="titleColumn" prefWidth="90.0" text="标题" />
                 <TableColumn fx:id="courseColumn" prefWidth="140.0" text="课程" />
                 <TableColumn fx:id="teacherColumn" prefWidth="60.0" text="教师" />
+            <TableColumn fx:id="statusColumn" prefWidth="60.0" text="完成情况" />
                 <TableColumn fx:id="editColumn" prefWidth="60.0" text="操作" />
             </columns>
         </TableView>

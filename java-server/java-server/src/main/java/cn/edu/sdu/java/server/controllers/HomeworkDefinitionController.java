@@ -18,9 +18,24 @@ public class HomeworkDefinitionController {
         this.homeworkDefinitionService = homeworkDefinitionService;
     }
 
+    /**
+     * 教师
+     * @param dataRequest
+     * @return
+     */
     @PostMapping("/getHomeworkList")
     public DataResponse getHomeworkList(@Valid @RequestBody DataRequest dataRequest){
         return homeworkDefinitionService.getHomeworkList(dataRequest);
+    }
+
+    /**
+     * 学生
+     * @param dataRequest
+     * @return
+     */
+    @PostMapping("/getHomeworkListStudent")
+    public DataResponse getHomeworkListStudent(@Valid @RequestBody DataRequest dataRequest){
+        return homeworkDefinitionService.getHomeworkListStudent(dataRequest);
     }
 
     @PostMapping("/homeworkSave")

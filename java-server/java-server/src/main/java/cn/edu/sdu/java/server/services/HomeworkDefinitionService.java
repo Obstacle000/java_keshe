@@ -171,4 +171,29 @@ public class HomeworkDefinitionService {
         return CommonMethod.getReturnMessageOK();
     }
 
+    public DataResponse getHomeworkListStudent(@Valid DataRequest dataRequest) {
+        Integer personId = dataRequest.getInteger("personId");// 学生personId
+        Optional<Student> byPersonPersonId = studentRepository.findByPersonPersonId(personId);
+        Student s = null;
+        if (byPersonPersonId.isPresent()) {
+            s = byPersonPersonId.get();
+        }
+        List<HomeworkSubmission> byStudent = homeworkSubmissionRepository.findByStudent(s);
+
+        List<Map<String,Object>> dataList = new ArrayList<>();
+        Map<String,Object> m;
+        for (HomeworkSubmission hs : byStudent) {
+            HomeworkDefinition h = hs.getHomeworkDefinition();
+            String name = h.getPerson().getName();
+            m = new HashMap<>();
+            m.put("num", h.getDefinitionId()+"");
+            m.put("title",h.getHomeworkTitle());
+            m.put("course",h.getCourse().getName());
+            m.put("teacher",name);
+            m.put("status",hs.getCompleted());
+            dataList.add(m);
+        }
+        return CommonMethod.getReturnData(dataList);
+
+    }
 }

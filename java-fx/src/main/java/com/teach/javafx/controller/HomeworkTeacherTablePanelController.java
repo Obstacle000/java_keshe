@@ -35,7 +35,7 @@ public class HomeworkTeacherTablePanelController {
     private TableColumn<Map,String> teacherColumn;
 
     @FXML
-    private ComboBox<OptionItem> teacherComboBox;
+    private ComboBox<OptionItem> courseComboBox;
 
     @FXML
     private TableColumn<Map,String> titleColumn;

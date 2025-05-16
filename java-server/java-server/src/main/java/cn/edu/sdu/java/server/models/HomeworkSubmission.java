@@ -20,14 +20,14 @@ public class HomeworkSubmission {
     private Integer submissionId;
 
     @ManyToOne
-    @JoinColumn(name = "studentId")
+    @JoinColumn(name = "studentId") // 这是personId
     private Student student;
 
     @ManyToOne
     @JoinColumn(name = "definitionId")
     private HomeworkDefinition homeworkDefinition;
 
-    private boolean completed = false;
+    private Boolean completed = false;
 
     @Size(max = 1000)  // 学生答案/附件路径
     private String studentAnswer;
