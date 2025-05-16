@@ -12,6 +12,7 @@ import java.util.List;
  * List<DictionaryInfo> findByPid(Integer pid); 查询获取pid的子数据字典集合  命名规范
  * List<DictionaryInfo>getDictionaryInfoList(String code);查询父节点字典值为code的所有的数据字典集合  SQL原生查询
  */
+// 第二个参数是实体类主键（ID）字段的类型。
 public interface DictionaryInfoRepository extends JpaRepository<DictionaryInfo,Integer> {
     @Query(value = "select max(id) from DictionaryInfo  ")
     Integer getMaxId();

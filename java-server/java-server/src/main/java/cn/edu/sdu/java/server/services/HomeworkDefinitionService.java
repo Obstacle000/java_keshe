@@ -116,7 +116,9 @@ public class HomeworkDefinitionService {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                // 第二步：删除作业定义
+
+
+                // 第三步：删除作业定义
                 homeworkDefinitionRepository.delete(h);
             }
         }
