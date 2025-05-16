@@ -60,6 +60,9 @@ public class NoticeManagementController {
 
         idColumn.setCellValueFactory(cellData -> {
             Object val = cellData.getValue().get("noticeId");
+            if (val instanceof Number) {
+                return new ReadOnlyStringWrapper(String.valueOf(((Number) val).intValue()));
+            }
             return new ReadOnlyStringWrapper(val == null ? "" : val.toString());
         });
 
@@ -263,7 +266,7 @@ public class NoticeManagementController {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "删除成功");
                 alert.showAndWait();
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "删除失败");
+                Alert alert = new Alert(Alert.AlertType.ERROR, res.getMsg());
                 alert.showAndWait();
             }
         }

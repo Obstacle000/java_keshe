@@ -66,8 +66,12 @@ public class ActivityService {
         if (notice == null) {
             return CommonMethod.getReturnMessageError("该活动没有关联通知");
         }
-        dataRequest.add("content",notice.getContent());
-        return CommonMethod.getReturnData(dataRequest);
+        Map<String, Object> m = new HashMap<>();
+        m.put("noticeId", notice.getNoticeId());
+        m.put("title", notice.getTitle());
+        m.put("content", notice.getContent());
+        m.put("createTime", notice.getCreateTime());
+        return CommonMethod.getReturnData(m);
     }
 
     public DataResponse addActivity(@Valid DataRequest dataRequest) {

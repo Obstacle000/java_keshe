@@ -24,6 +24,7 @@ import lombok.Setter;
         })
 public class Student {
     @Id
+    @Column(name = "student_id")
     private Integer personId;
 
     @OneToOne

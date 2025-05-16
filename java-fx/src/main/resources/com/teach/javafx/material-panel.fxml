@@ -21,7 +21,7 @@
                 <!-- 教学资料树表 -->
                 <TreeTableView fx:id="treeTable" prefHeight="600" prefWidth="800">
                     <columns>
-                        <TreeTableColumn fx:id="idColumn" prefWidth="75.0" text="主键" />
+                        <TreeTableColumn fx:id="idColumn" prefWidth="75.0" text="序号" />
                         <!-- 显示课程名或资料标题 -->
                         <TreeTableColumn fx:id="courseNameColumn" text="课程名" prefWidth="300"/>
                         <!-- 可选的资料描述或备注 -->

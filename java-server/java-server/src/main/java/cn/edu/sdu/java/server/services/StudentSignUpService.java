@@ -12,6 +12,7 @@ import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -28,14 +29,19 @@ public class StudentSignUpService {
     private ActivityRepository activityRepository;
 
     // 学生报名活动
+    @Transactional
     public DataResponse newSignUp(@Valid DataRequest dataRequest) {
-        Integer studentId = dataRequest.getInteger("studentId");
+        Integer personId = dataRequest.getInteger("personId");
         Integer activityId = dataRequest.getInteger("activityId");
-
-        Optional<Student> studentOpt = studentRepository.findById(studentId);
-        if (studentOpt.isEmpty()) {
-            return CommonMethod.getReturnMessageError("学生不存在");
+        Optional<Student> byPersonPersonId = studentRepository.findByPersonPersonId(personId);
+        Student student = null;
+        if (byPersonPersonId.isPresent()) {
+            student = byPersonPersonId.get();
+        }else
+        {
+            return CommonMethod.getReturnMessageError("请使用学生账号报名");
         }
+
 
         Optional<Activity> activityOpt = activityRepository.findById(activityId);
         if (activityOpt.isEmpty()) {
@@ -43,25 +49,35 @@ public class StudentSignUpService {
         }
 
         // 判断是否已经报名
-        boolean exists = activitySignupRepository.existsByStudentPersonIdAndActivityActivityId(studentId, activityId);
+        boolean exists = activitySignupRepository.existsByStudentPersonIdAndActivityActivityId(student.getPersonId(), activityId);
         if (exists) {
             return CommonMethod.getReturnMessageError("学生已报名该活动");
         }
 
         ActivitySignup signup = new ActivitySignup();
-        signup.setStudent(studentOpt.get());
+        signup.setStudent(student);
         signup.setActivity(activityOpt.get());
-        activitySignupRepository.save(signup);
+        try {
+            activitySignupRepository.save(signup);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommonMethod.getReturnMessageError(e.getMessage());
+        }
 
         return CommonMethod.getReturnMessageOK("报名成功");
     }
 
     // 取消报名
     public DataResponse cancelSignUp(@Valid DataRequest dataRequest) {
-        Integer studentId = dataRequest.getInteger("studentId");
+        Integer personId = dataRequest.getInteger("personId");
         Integer activityId = dataRequest.getInteger("activityId");
 
-        Optional<ActivitySignup> signupOpt = activitySignupRepository.findByStudentPersonIdAndActivityActivityId(studentId, activityId);
+        Optional<Student> byPersonPersonId = studentRepository.findByPersonPersonId(personId);
+        Student student = null;
+        if (byPersonPersonId.isPresent()) {
+            student = byPersonPersonId.get();
+        }
+        Optional<ActivitySignup> signupOpt = activitySignupRepository.findByStudentPersonIdAndActivityActivityId(student.getPersonId(), activityId);
         if (signupOpt.isEmpty()) {
             return CommonMethod.getReturnMessageError("报名信息不存在");
         }
