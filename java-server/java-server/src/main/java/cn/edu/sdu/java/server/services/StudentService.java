@@ -8,6 +8,8 @@ import cn.edu.sdu.java.server.util.ComDataUtil;
 import cn.edu.sdu.java.server.util.CommonMethod;
 import cn.edu.sdu.java.server.util.DateTimeTool;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 
@@ -101,7 +107,7 @@ public class StudentService {
     }
 
 
-
+    @Transactional
     public DataResponse studentDelete(DataRequest dataRequest) {
         Integer personId = dataRequest.getInteger("personId");  //获取student_id值
         Student s = null;
@@ -110,13 +116,17 @@ public class StudentService {
             op = studentRepository.findById(personId);   //查询获得实体对象
             if(op.isPresent()) {
                 s = op.get();
-                Optional<User> uOp = userRepository.findById(personId); //查询对应该学生的账户
+                Optional<User> uOp = userRepository.findByPerson(s.getPerson()); //查询对应该学生的账户
                 //删除对应该学生的账户
                 uOp.ifPresent(userRepository::delete);
                 Person p = s.getPerson();
                 // 顺序不能颠倒,person表有外键
                 studentRepository.delete(s);    //首先student数据库永久删除学生信息
-                personRepository.delete(p);   // 然后person数据库永久删除学生信息
+                try {
+                    personRepository.delete(p);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return CommonMethod.getReturnMessageOK();  //通知前端操作正常
@@ -507,5 +517,90 @@ public class StudentService {
         }
         return CommonMethod.getReturnMessageError("上传错误！");
     }
+    @Transactional
+    public DataResponse importStudentExcel(MultipartFile file) {
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            int rowNum = sheet.getLastRowNum();
+
+            for (int i = 1; i <= rowNum; i++) { // 跳过表头，从第1行开始
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                Person person = new Person();
+                person.setNum(getCellStringValue(row, 1));
+                person.setName(getCellStringValue(row, 2));
+                person.setDept(getCellStringValue(row, 3));
+                person.setCard(getCellStringValue(row, 6));
+                person.setGender("男".equals(getCellStringValue(row, 7)) ? "1" : "2");
+                person.setBirthday(getCellStringValue(row, 8));
+                person.setEmail(getCellStringValue(row, 9));
+                person.setPhone(getCellStringValue(row, 10));
+                person.setAddress(getCellStringValue(row, 11));
+                person.setType("1"); // 学生类型
+                personRepository.save(person);
+
+                User user = new User();
+                user.setUserName(person.getNum());
+                user.setPassword(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"));
+                user.setCreateTime(LocalDateTime.now().toString());
+                user.setLoginCount(0);
+                user.setPerson(person);
+                user.setUserType(userTypeRepository.findByName(EUserType.ROLE_STUDENT));
+                userRepository.save(user);
+
+                Student student = new Student();
+                student.setPerson(person);
+                student.setMajor(getCellStringValue(row, 4));
+                student.setClassName(getCellStringValue(row, 5));
+                studentRepository.save(student);
+            }
+            return CommonMethod.getReturnMessageOK();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new CommonMethod().getReturnMessageError("导入失败");
+        }
+    }
+
+    /**
+     * 获取单元格字符串值，自动判空和类型转换
+     */
+    private String getCellStringValue(Row row, int cellIndex) {
+        if (row == null) return "";
+        Cell cell = row.getCell(cellIndex);
+        if (cell == null) return "";
+
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return new SimpleDateFormat("yyyy-MM-dd").format(cell.getDateCellValue());
+                } else {
+                    // 处理数字型单元格转换为字符串，避免小数点
+                    double d = cell.getNumericCellValue();
+                    if (d == (long) d) {
+                        return String.valueOf((long) d);
+                    } else {
+                        return String.valueOf(d);
+                    }
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                // 这里简单返回公式文本，或你可以改成计算公式值
+                return cell.getCellFormula();
+            case BLANK:
+            case _NONE:
+            case ERROR:
+            default:
+                return "";
+        }
+    }
+
+
+
+
 
 }

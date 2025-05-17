@@ -3,6 +3,7 @@ package com.teach.javafx.request;
 import com.teach.javafx.AppStore;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -253,6 +254,55 @@ public class HttpRequestUtil {
         return null;
     }
 
+    public static DataResponse importData(String url, File file, String paras) {
+        try {
+            HttpClient client = HttpClient.newBuilder().build();
+
+            String urlStr = serverUrl + url + "?uploader=HttpTestApp&fileName=" + file.getName();
+            if (paras != null && !paras.isEmpty()) {
+                urlStr += "&" + paras;
+            }
+
+            String boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
+            String LINE_FEED = "\r\n";
+
+            // 拼接 multipart/form-data 请求体前半部分
+            StringBuilder sb = new StringBuilder();
+            sb.append("--").append(boundary).append(LINE_FEED);
+            sb.append("Content-Disposition: form-data; name=\"file\"; filename=\"")
+                    .append(file.getName()).append("\"").append(LINE_FEED);
+            sb.append("Content-Type: application/octet-stream").append(LINE_FEED);
+            sb.append(LINE_FEED);
+
+            byte[] fileBytes = java.nio.file.Files.readAllBytes(file.toPath());
+            byte[] beforeFile = sb.toString().getBytes();
+            byte[] afterFile = (LINE_FEED + "--" + boundary + "--" + LINE_FEED).getBytes();
+
+            // 合并请求体字节
+            byte[] requestBody = new byte[beforeFile.length + fileBytes.length + afterFile.length];
+            System.arraycopy(beforeFile, 0, requestBody, 0, beforeFile.length);
+            System.arraycopy(fileBytes, 0, requestBody, beforeFile.length, fileBytes.length);
+            System.arraycopy(afterFile, 0, requestBody, beforeFile.length + fileBytes.length, afterFile.length);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(urlStr))
+                    .header("Authorization", "Bearer " + AppStore.getJwt().getToken())
+                    .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                return gson.fromJson(response.body(), DataResponse.class);
+            } else {
+                System.err.println("上传失败，状态码：" + response.statusCode());
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
 }

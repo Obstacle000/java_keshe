@@ -349,19 +349,27 @@ public class StudentController extends ToolController {
     @FXML
     protected void onImportButtonClick() {
         FileChooser fileDialog = new FileChooser();
-        fileDialog.setTitle("前选择学生数据表");
+        fileDialog.setTitle("请选择学生数据表");
         fileDialog.setInitialDirectory(new File("D:/"));
         fileDialog.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("XLSX 文件", "*.xlsx"));
         File file = fileDialog.showOpenDialog(null);
+        if (file == null) return;
+
         String paras = "";
-        DataResponse res = HttpRequestUtil.importData("/api/term/importStudentData", file.getPath(), paras);
+        DataResponse res = HttpRequestUtil.importData("/api/student/importExcelData", file, paras);
+        if (res == null) {
+            MessageDialog.showDialog("上传失败，未返回数据");
+            return;
+        }
         if (res.getCode() == 0) {
             MessageDialog.showDialog("上传成功！");
+            initialize();
         } else {
             MessageDialog.showDialog(res.getMsg());
         }
     }
+
     @FXML
     protected void onFamilyButtonClick() {
         // 判断是否选中了学生

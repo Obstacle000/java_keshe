@@ -1,10 +1,12 @@
 package com.teach.javafx.controller;
 
 import com.teach.javafx.AppStore;
+import com.teach.javafx.controller.base.MessageDialog;
 import com.teach.javafx.request.DataRequest;
 import com.teach.javafx.request.DataResponse;
 import com.teach.javafx.request.HttpRequestUtil;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -315,6 +317,7 @@ public class ActivityPanelController {
             noticeComboBox.getItems().addAll(notices);
         }
 
+
         // 下拉框显示title字段
         noticeComboBox.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -354,52 +357,54 @@ public class ActivityPanelController {
 
         // 添加按钮
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        // 获取 OK 按钮
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(ActionEvent.ACTION, event -> {
+            String title = titleField.getText().trim();
+            String description = descriptionArea.getText().trim();
+            String startDateStr = startDateField.getText().trim();
+            String endDateStr = endDateField.getText().trim();
+            Map<String, Object> selectedNotice = noticeComboBox.getValue();
 
-        // 结果处理
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
-                // 校验输入
-                String title = titleField.getText().trim();
-                String description = descriptionArea.getText().trim();
-                String startDateStr = startDateField.getText().trim();
-                String endDateStr = endDateField.getText().trim();
-                Map<String, Object> selectedNotice = noticeComboBox.getValue();
-
-                if (title.isEmpty()) {
-                    showAlert("标题不能为空");
-                    return null;
-                }
-                if (!startDateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    showAlert("开始时间格式错误，请输入 yyyy-MM-dd 格式");
-                    return null;
-                }
-                if (!endDateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    showAlert("结束时间格式错误，请输入 yyyy-MM-dd 格式");
-                    return null;
-                }
-                if (selectedNotice == null) {
-                    showAlert("请选择通知");
-                    return null;
-                }
-
-                // 发送添加请求
-                DataRequest req = new DataRequest();
-                req.add("title", title);
-                req.add("description", description);
-                req.add("startTime", startDateStr);
-                req.add("endTime", endDateStr);
-                req.add("noticeId", selectedNotice.get("noticeId"));
-
-                DataResponse res = HttpRequestUtil.request("/api/activity/addActivity", req);
-                if (res != null && res.getCode() == 0) {
-                    showAlert("添加成功", Alert.AlertType.INFORMATION);
-                    loadActivityData(); // 重新加载表格
-                } else {
-                    showAlert("添加失败：" + (res == null ? "无响应" : res.getMsg()));
-                }
+            if (title.isEmpty()) {
+                showAlert("标题不能为空");
+                event.consume(); // 阻止对话框关闭
+                return;
             }
-            return null;
+            if (!startDateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                showAlert("开始时间格式错误，请输入 yyyy-MM-dd 格式");
+                event.consume();
+                return;
+            }
+            if (!endDateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                showAlert("结束时间格式错误，请输入 yyyy-MM-dd 格式");
+                event.consume();
+                return;
+            }
+            if (selectedNotice == null) {
+                showAlert("请选择通知");
+                event.consume();
+                return;
+            }
+
+            // 发送添加请求
+            DataRequest req = new DataRequest();
+            req.add("title", title);
+            req.add("description", description);
+            req.add("startTime", startDateStr);
+            req.add("endTime", endDateStr);
+            req.add("noticeId", selectedNotice.get("noticeId"));
+
+            DataResponse res = HttpRequestUtil.request("/api/activity/addActivity", req);
+            if (res != null && res.getCode() == 0) {
+                showAlert("添加成功", Alert.AlertType.INFORMATION);
+                loadActivityData(); // 重新加载数据
+            } else {
+                showAlert("添加失败：" + (res == null ? "无响应" : res.getMsg()));
+                event.consume(); // 失败时阻止关闭弹窗
+            }
         });
+
 
         dialog.showAndWait();
     }

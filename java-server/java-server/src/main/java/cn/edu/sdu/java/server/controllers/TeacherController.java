@@ -3,6 +3,7 @@ package cn.edu.sdu.java.server.controllers;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.services.TeacherService;
+import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +43,16 @@ public class TeacherController {
         return teacherService.teacherEditSave(dataRequest);
     }
 
+    @PostMapping("/importExcelData")
+    @PreAuthorize("hasRole('ADMIN')")
+    public DataResponse importTeacherExcel(@RequestParam("file") MultipartFile file,@RequestParam(value = "paras", required = false) String paras) {
+        try {
+            return teacherService.importTeacherExcel(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommonMethod.getReturnMessageError("导入失败！");
+        }
+    }
 
     // 上传excel表文件接口...等等很多其他接口
 }

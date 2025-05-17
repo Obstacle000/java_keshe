@@ -106,6 +106,14 @@ public class ActivityService {
         Date endTime = dataRequest.getDate("endTime");
         Integer noticeId = dataRequest.getInteger("noticeId");
 
+        // 时间合法性判断
+        if (startTime == null || endTime == null) {
+            return CommonMethod.getReturnMessageError("开始时间或结束时间不能为空");
+        }
+        if (!endTime.after(startTime)) {
+            return CommonMethod.getReturnMessageError("结束时间必须在开始时间之后");
+        }
+
         Optional<Notice> noticeOpt = noticeRepository.findById(noticeId);
         if (noticeOpt.isEmpty()) {
             return CommonMethod.getReturnMessageError("通知不存在");
@@ -121,6 +129,7 @@ public class ActivityService {
         activityRepository.save(activity);
         return CommonMethod.getReturnMessageOK("添加成功");
     }
+
 
 
     public DataResponse deleteActivity(@Valid DataRequest dataRequest) {

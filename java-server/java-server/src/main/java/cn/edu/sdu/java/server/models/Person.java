@@ -55,11 +55,10 @@ public class Person {
     @Size(max = 2)
     private String gender;
 
-    @Size(max = 10)
+
     private String birthday;
 
     @Size(max = 60)
-    @Email
     private String email;
 
     @Size(max = 20)

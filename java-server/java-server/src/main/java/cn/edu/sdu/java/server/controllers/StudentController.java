@@ -3,6 +3,7 @@ package cn.edu.sdu.java.server.controllers;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.services.StudentService;
+import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -154,6 +155,17 @@ public class StudentController {
     public DataResponse getStudentScore(@Valid @RequestBody DataRequest dataRequest) {
 
         return null;
+    }
+
+    @PostMapping("/importExcelData")
+    @PreAuthorize("hasRole('ADMIN')")
+    public DataResponse importStudentExcel(@RequestParam("file") MultipartFile file,@RequestParam(value = "paras", required = false) String paras) {
+        try {
+            return studentService.importStudentExcel(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommonMethod.getReturnMessageError("导入失败！");
+        }
     }
 
 }

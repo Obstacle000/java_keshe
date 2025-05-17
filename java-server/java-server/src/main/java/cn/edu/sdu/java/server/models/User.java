@@ -42,13 +42,13 @@ public class User {
 
 
     @NotBlank
-    @Size(max = 60)
+
     private String password;
 
     private Integer loginCount;
     @Size(max = 20)
     private String lastLoginTime;
-    @Size(max = 20)
+
     private String  createTime;
     private Integer creatorId;
 }
