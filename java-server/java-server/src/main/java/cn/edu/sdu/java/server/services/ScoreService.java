@@ -8,9 +8,11 @@ import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.payload.response.OptionItem;
 import cn.edu.sdu.java.server.payload.response.OptionItemList;
 import cn.edu.sdu.java.server.repositorys.CourseRepository;
+import cn.edu.sdu.java.server.repositorys.PersonRepository;
 import cn.edu.sdu.java.server.repositorys.ScoreRepository;
 import cn.edu.sdu.java.server.repositorys.StudentRepository;
 import cn.edu.sdu.java.server.util.CommonMethod;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
@@ -19,6 +21,8 @@ public class ScoreService {
     private final CourseRepository courseRepository;
     private final ScoreRepository scoreRepository;
     private final StudentRepository studentRepository;
+    @Autowired
+    private PersonRepository personRepository;
 
     public ScoreService(CourseRepository courseRepository, ScoreRepository scoreRepository, StudentRepository studentRepository) {
         this.courseRepository = courseRepository;
@@ -94,9 +98,14 @@ public class ScoreService {
             s = new Score();
             s.setStudent(studentRepository.findById(personId).get());
             s.setCourse(courseRepository.findById(courseId).get());
+            s.setPerson(personRepository.findById(studentRepository.findById(personId).get().getPersonId()).get());
         }
         s.setMark(mark);
-        scoreRepository.save(s);
+        try {
+            scoreRepository.save(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return CommonMethod.getReturnMessageOK();
     }
     public DataResponse scoreDelete(DataRequest dataRequest) {
