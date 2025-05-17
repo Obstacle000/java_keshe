@@ -21,8 +21,7 @@ public class HomeworkStudentTablePanelController {
     @FXML
     private TableColumn<Map,String> courseColumn;
 
-    @FXML
-    private ComboBox<OptionItem> courseComboBox;
+
 
     @FXML
     private TableView<Map<String, Object>> dataTableView;
@@ -174,9 +173,6 @@ public class HomeworkStudentTablePanelController {
 
 
 
-    @FXML
-    void onQueryButtonClick(ActionEvent event) {
 
-    }
 
 }

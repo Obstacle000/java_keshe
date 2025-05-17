@@ -16,7 +16,7 @@ public class FamilyMember {
     private Integer memberId;
 
     @ManyToOne
-    @JoinColumn(name="personId")
+    @JoinColumn(name="student_id")
     private Student student;
     @Size(max=10)
     private String relation;

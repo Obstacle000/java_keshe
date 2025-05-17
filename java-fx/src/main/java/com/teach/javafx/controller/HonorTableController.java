@@ -108,6 +108,8 @@ public class HonorTableController extends ToolController{
         }
         setTableViewData();
     }
+
+
     private void setTableViewData() {
         observableList.clear();
         Map map;

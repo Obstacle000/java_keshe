@@ -3,10 +3,13 @@ package cn.edu.sdu.java.server.services;
 import cn.edu.sdu.java.server.models.*;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
+import cn.edu.sdu.java.server.payload.response.OptionItem;
+import cn.edu.sdu.java.server.payload.response.OptionItemList;
 import cn.edu.sdu.java.server.repositorys.*;
 import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -20,6 +23,8 @@ public class HomeworkSubmissionService {
 
     private final StudentRepository studentRepository;
     private final PersonRepository personRepository;
+    @Autowired
+    private TeacherRepository teacherRepository;
 
     public HomeworkSubmissionService(HomeworkSubmissionRepository submissionRepository,
                                      HomeworkDefinitionRepository definitionRepository,
@@ -91,6 +96,18 @@ public class HomeworkSubmissionService {
         }
 
         return CommonMethod.getReturnData(result);
+    }
+
+
+
+    public OptionItemList getTeacherItemOptionList(@Valid DataRequest dataRequest) {
+        List<Teacher> teachers = teacherRepository.findAll();
+        List<OptionItem> itemList = new ArrayList<>();
+        for (Teacher t : teachers) {
+            // 返回格式
+            itemList.add(new OptionItem( t.getPersonId(),t.getPersonId()+"",t.getPerson().getNum()+"-"+t.getPerson().getName()));
+        }
+        return new OptionItemList(0, itemList);
     }
 }
 

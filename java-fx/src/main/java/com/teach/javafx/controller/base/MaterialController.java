@@ -227,11 +227,12 @@ public class MaterialController {
         req.add("materialId", node.getId());  // id 就是资料节点 ID
 
         DataResponse res = HttpRequestUtil.request("/api/material/deleteMaterial", req);
-        if (res.getCode() == 0) {
+        if (res.getCode() == 0||res.getMsg().equals("找不到资料")) {
             // 前端删除节点
             selectedItem.getParent().getChildren().remove(selectedItem);
             MessageDialog.showDialog("删除成功！");
         } else {
+
             MessageDialog.showDialog("删除失败：" + res.getMsg());
         }
     }

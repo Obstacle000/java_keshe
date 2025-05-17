@@ -2,6 +2,7 @@ package cn.edu.sdu.java.server.controllers;
 import cn.edu.sdu.java.server.models.HomeworkSubmission;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
+import cn.edu.sdu.java.server.payload.response.OptionItemList;
 import cn.edu.sdu.java.server.services.HomeworkDefinitionService;
 import cn.edu.sdu.java.server.services.HomeworkSubmissionService;
 import jakarta.validation.Valid;
@@ -28,5 +29,10 @@ public class HomeworkSubmissionController {
     @PreAuthorize("hasRole('TEACHER')")
     public DataResponse getHomeworkSubmissions(@Valid @RequestBody DataRequest dataRequest){
         return homeworkSubmissionService.getHomeworkSubmissions(dataRequest);
+    }
+
+    @PostMapping("/getTeacherItemOptionList")
+    public OptionItemList getTeacherItemOptionList(@Valid @RequestBody DataRequest dataRequest){
+        return homeworkSubmissionService.getTeacherItemOptionList(dataRequest);
     }
 }

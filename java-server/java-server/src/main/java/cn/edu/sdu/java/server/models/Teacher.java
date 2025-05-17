@@ -14,6 +14,7 @@ import lombok.Setter;
         })
 public class Teacher {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer personId;
 
     @OneToOne

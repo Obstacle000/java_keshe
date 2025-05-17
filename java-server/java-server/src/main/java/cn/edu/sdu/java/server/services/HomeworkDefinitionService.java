@@ -166,7 +166,12 @@ public class HomeworkDefinitionService {
             hs.setHomeworkDefinition(homework);
             submissionList.add(hs);
         }
-        homeworkSubmissionRepository.saveAll(submissionList);
+        try {
+            homeworkSubmissionRepository.saveAll(submissionList);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
 
         return CommonMethod.getReturnMessageOK();
     }

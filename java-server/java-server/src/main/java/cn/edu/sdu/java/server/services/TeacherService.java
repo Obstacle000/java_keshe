@@ -8,10 +8,18 @@ import cn.edu.sdu.java.server.util.ComDataUtil;
 import cn.edu.sdu.java.server.util.CommonMethod;
 import cn.edu.sdu.java.server.util.DateTimeTool;
 import org.apache.poi.ss.formula.functions.T;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.*;
 
 @Service
@@ -177,4 +185,5 @@ public class TeacherService {
         return CommonMethod.getReturnData(t.getPersonId());  // 将personId返回前端
 
     }
+
 }

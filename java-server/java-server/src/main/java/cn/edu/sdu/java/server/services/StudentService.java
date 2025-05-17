@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -134,7 +135,7 @@ public class StudentService {
         }
         return CommonMethod.getReturnData(getMapFromStudent(s)); //这里回传包含学生信息的Map对象
     }
-
+    @Transactional
     public DataResponse studentEditSave(DataRequest dataRequest) {
         Integer personId = dataRequest.getInteger("personId");
         Map<String,Object> form = dataRequest.getMap("form"); //参数获取Map对象
@@ -170,10 +171,18 @@ public class StudentService {
             u.setUserType(userTypeRepository.findByName(EUserType.ROLE_STUDENT));
             u.setCreateTime(DateTimeTool.parseDateTime(new Date()));
             u.setCreatorId(CommonMethod.getPersonId());
-            userRepository.saveAndFlush(u); //插入新的User记录
+            try {
+                userRepository.saveAndFlush(u); //插入新的User记录
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             s = new Student();   // 创建实体对象
-            s.setPersonId(personId);
-            studentRepository.saveAndFlush(s);  //插入新的Student记录
+            s.setPerson(p);
+            try {
+                studentRepository.saveAndFlush(s);  //插入新的Student记录
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             isNew = true;
         } else {
             p = s.getPerson();
@@ -468,7 +477,11 @@ public class StudentService {
         f.setGender(CommonMethod.getString(form,"gender"));
         f.setAge(CommonMethod.getInteger(form,"age"));
         f.setUnit(CommonMethod.getString(form,"unit"));
-        familyMemberRepository.save(f);
+        try {
+            familyMemberRepository.save(f);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return CommonMethod.getReturnMessageOK();
     }
 

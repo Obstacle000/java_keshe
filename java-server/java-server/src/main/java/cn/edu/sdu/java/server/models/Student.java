@@ -25,10 +25,11 @@ import lombok.Setter;
 public class Student {
     @Id
     @Column(name = "student_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 或 AUTO/SEQUENCE，取决于数据库
     private Integer personId;
 
     @OneToOne
-    @JoinColumn(name="personId")
+    @JoinColumn(name="person_id")
     @JsonIgnore
     private Person person;
 
