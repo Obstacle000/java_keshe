@@ -85,8 +85,7 @@ public class HomeworkSubmissionService {
         // 封装为 Map 并加上 status 字段
         List<Map<String, Object>> result = new ArrayList<>();
         for (Student student : uncompletedList) {
-            Integer personId = student.getPersonId();
-            Person person = personRepository.findById(personId).get();
+            Person person = student.getPerson();
 
             Map<String, Object> map = new HashMap<>();
             map.put("num", person.getNum());
