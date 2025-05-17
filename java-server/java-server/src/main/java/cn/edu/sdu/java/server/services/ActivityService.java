@@ -30,31 +30,44 @@ public class ActivityService {
 
     public DataResponse getActivityList(@Valid DataRequest dataRequest) {
         Integer personId = dataRequest.getInteger("personId");
+        Optional<Student> byPersonPersonId = studentRepository.findByPersonPersonId(personId);
+        Student student = null;
+        if (byPersonPersonId.isPresent()) {
+            student = byPersonPersonId.get();
+        }
 
         List<Activity> lists = activityRepository.findAll();
         List<Map<String,Object>> dataList = new ArrayList<>();
         Map<String,Object> m;
+
         for (Activity activity : lists) {
-            // 根据活动去参加表里获取人数
             m = new HashMap<>();
             long count = studentSignUpRepository.countByActivityId(activity.getActivityId());
-            ActivitySignup as = studentSignUpRepository.findByActivityActivityId(activity.getActivityId());
-            if(as!=null)
-            {
-                m.put("isSignedUp",as.getStatus());
 
+            // 默认未报名
+            m.put("isSignedUp", false);
+
+            // 如果是学生，则去查询报名状态
+            if (student != null) {
+                ActivitySignup as = studentSignUpRepository.findByStudentAndActivity(student, activity);
+                if (as != null && Boolean.TRUE.equals(as.getStatus())) {
+                    m.put("isSignedUp", true);
+                }
             }
-            m.put("signupCount",count);
-            m.put("activityId",activity.getActivityId());
-            m.put("title",activity.getTitle());
-            m.put("description",activity.getDescription());
-            m.put("startTime",activity.getStartTime());
-            m.put("endTime",activity.getEndTime());
+
+            m.put("signupCount", count);
+            m.put("activityId", activity.getActivityId());
+            m.put("title", activity.getTitle());
+            m.put("description", activity.getDescription());
+            m.put("startTime", activity.getStartTime());
+            m.put("endTime", activity.getEndTime());
+
             dataList.add(m);
         }
-        return CommonMethod.getReturnData(dataList);
 
+        return CommonMethod.getReturnData(dataList);
     }
+
     public DataResponse getNoticeList(@Valid DataRequest dataRequest) {
         List<Notice> notices = noticeRepository.findAll();
         List<Map<String, Object>> dataList = new ArrayList<>();

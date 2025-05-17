@@ -18,4 +18,6 @@ public interface StudentSignUpRepository extends JpaRepository<ActivitySignup,In
     ActivitySignup findByStudent(Student student);
 
     ActivitySignup findByActivityActivityId(Integer activityId);
+
+    ActivitySignup findByStudentAndActivity(Student student, Activity activity);
 }
