@@ -6,10 +6,12 @@ import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.repositorys.ActivityRepository;
 import cn.edu.sdu.java.server.repositorys.NoticeRepository;
+import cn.edu.sdu.java.server.repositorys.StudentSignUpRepository;
 import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -20,6 +22,8 @@ public class NoticeService {
     private NoticeRepository noticeRepository;
     @Autowired
     private ActivityRepository activityRepository;
+    @Autowired
+    private StudentSignUpRepository studentSignUpRepository;
 
     // 获取通知列表
     public DataResponse getNoticeList(@Valid DataRequest dataRequest) {
@@ -77,19 +81,23 @@ public class NoticeService {
     }
 
     // 删除通知
+    @Transactional
     public DataResponse deleteNotice(@Valid DataRequest dataRequest) {
         Integer noticeId = dataRequest.getInteger("noticeId");
         if (!noticeRepository.existsById(noticeId)) {
             return CommonMethod.getReturnMessageError("通知不存在");
         }
+        // TODO 删除所有关联通知表的表数据
 
-        // 判断是否有活动关联此通知
+        // 删除参加表
         List<Activity> activities = activityRepository.findByNoticeNoticeId(noticeId);
-        if (activities != null && !activities.isEmpty()) {
-            return CommonMethod.getReturnMessageError("该通知已被活动关联，无法删除");
+        for (Activity activity : activities) {
+            studentSignUpRepository.deleteByActivity(activity);
         }
+        // 删除活动表
+        activityRepository.deleteAll(activities);
 
-        // 没有关联才删除
+        // 删除通知表
         noticeRepository.deleteById(noticeId);
         return CommonMethod.getReturnMessageOK("删除成功");
     }

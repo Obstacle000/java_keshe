@@ -1,12 +1,20 @@
 package cn.edu.sdu.java.server.services;
 
 import cn.edu.sdu.java.server.models.Course;
+import cn.edu.sdu.java.server.models.HomeworkDefinition;
+import cn.edu.sdu.java.server.models.HomeworkSubmission;
+import cn.edu.sdu.java.server.models.Score;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
 import cn.edu.sdu.java.server.repositorys.CourseRepository;
+import cn.edu.sdu.java.server.repositorys.HomeworkDefinitionRepository;
+import cn.edu.sdu.java.server.repositorys.HomeworkSubmissionRepository;
+import cn.edu.sdu.java.server.repositorys.ScoreRepository;
 import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
@@ -14,8 +22,16 @@ import java.util.*;
 @Service
 public class CourseService {
     private final CourseRepository courseRepository;
-    public CourseService(CourseRepository courseRepository) {
+    private final ScoreRepository scoreRepository;
+
+    @Autowired
+    private HomeworkSubmissionRepository homeworkSubmissionRepository;
+    @Autowired
+    private HomeworkDefinitionRepository homeworkDefinitionRepository;
+
+    public CourseService(CourseRepository courseRepository, ScoreRepository scoreRepository) {
         this.courseRepository = courseRepository;
+        this.scoreRepository = scoreRepository;
     }
 
     public DataResponse getCourseList(DataRequest dataRequest) {
@@ -74,6 +90,7 @@ public class CourseService {
         courseRepository.save(c);
         return CommonMethod.getReturnMessageOK();
     }
+    @Transactional
     public DataResponse courseDelete(DataRequest dataRequest) {
         Integer courseId = dataRequest.getInteger("courseId");
         Optional<Course> op;
@@ -82,7 +99,34 @@ public class CourseService {
             op = courseRepository.findByCourseId(courseId);
             if(op.isPresent()) {
                 c = op.get();
-                courseRepository.delete(c);
+                // 判断是否为前序课
+                List<Course> course = courseRepository.findByPreCourse(c);
+                if(course.size() > 0) {
+                    return CommonMethod.getReturnMessageError("该课程是前序课无法删除");
+                }
+                // 获取defination
+                Optional<HomeworkDefinition> byCourseCourseId = homeworkDefinitionRepository.findByCourseCourseId(courseId);
+                HomeworkDefinition homeworkDefinition = null;
+                if(byCourseCourseId.isPresent()) {
+                    homeworkDefinition = byCourseCourseId.get();
+                }
+                // 删除作业提交
+                homeworkSubmissionRepository.deleteByHomeworkDefinition(homeworkDefinition);
+                // 删除作业
+                try {
+                    if (homeworkDefinition != null) {
+                        homeworkDefinitionRepository.delete(homeworkDefinition);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // 删除分数
+                scoreRepository.deleteByCourse(c);
+                try {
+                    courseRepository.delete(c);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return CommonMethod.getReturnMessageOK();

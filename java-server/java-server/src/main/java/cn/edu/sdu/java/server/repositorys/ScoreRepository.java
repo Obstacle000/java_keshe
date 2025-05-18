@@ -1,5 +1,6 @@
 package cn.edu.sdu.java.server.repositorys;
 
+import cn.edu.sdu.java.server.models.Course;
 import cn.edu.sdu.java.server.models.Score;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,7 @@ public interface ScoreRepository extends JpaRepository<Score,Integer> {
     @Query(value="from Score where student.personId=?1 and (?2=0 or course.name like %?2%)" )
     List<Score> findByStudentCourse(Integer personId, String courseName);
 
+    List<Score> findByCourse(Course c);
+
+    void deleteByCourse(Course c);
 }

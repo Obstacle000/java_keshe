@@ -23,6 +23,6 @@ public interface CourseRepository extends JpaRepository<Course,Integer> {
     // Optional<Course> findByPreCourse(String preCourse);
     Optional<Course> findByName(String name);
 
-
+    List<Course> findByPreCourse(Course preCourse);
 
 }

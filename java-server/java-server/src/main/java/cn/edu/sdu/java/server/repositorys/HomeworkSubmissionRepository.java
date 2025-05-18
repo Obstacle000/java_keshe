@@ -28,4 +28,6 @@ public interface HomeworkSubmissionRepository extends JpaRepository<HomeworkSubm
 
 
     void deleteByHomeworkDefinitionDefinitionId( Integer definitionId);
+
+    void deleteByHomeworkDefinition(HomeworkDefinition homeworkDefinition);
 }
