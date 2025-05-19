@@ -119,6 +119,8 @@ public class ActivityService {
             return CommonMethod.getReturnMessageError("通知不存在");
         }
 
+
+
         Activity activity = new Activity();
         activity.setTitle(title);
         activity.setDescription(description);
@@ -127,6 +129,8 @@ public class ActivityService {
         activity.setNotice(noticeOpt.get());
 
         activityRepository.save(activity);
+
+
         return CommonMethod.getReturnMessageOK("添加成功");
     }
 
