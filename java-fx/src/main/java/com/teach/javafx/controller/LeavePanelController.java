@@ -63,6 +63,9 @@ public class LeavePanelController {
 
     @FXML
     void initialize() {
+        boolean isTeacher = AppStore.getJwt().getRole().equals("ROLE_TEACHER");
+        applyButton.setVisible(!isTeacher);
+
         leaveIdColumn.setCellValueFactory(new MapValueFactory<>("leaveId"));
         studentNameColumn.setCellValueFactory(new MapValueFactory<>("student"));
         teacherNameColumn.setCellValueFactory(new MapValueFactory<>("teacher"));
