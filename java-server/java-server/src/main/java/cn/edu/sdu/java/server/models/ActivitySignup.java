@@ -14,6 +14,7 @@ import java.util.Date;
 @Table(name = "activity_signup",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"activity_id", "student_id"})})
 public class ActivitySignup {
+    // 虽然对数据库压力很大,但是用不了redis.委屈数据库了
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer signupId;

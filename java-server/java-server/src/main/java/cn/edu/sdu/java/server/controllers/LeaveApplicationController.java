@@ -1,14 +1,12 @@
 package cn.edu.sdu.java.server.controllers;
 
-import cn.edu.sdu.java.server.models.LeaveApplication;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
+import cn.edu.sdu.java.server.payload.response.OptionItemList;
 import cn.edu.sdu.java.server.services.LeaveApplicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/leave")
@@ -18,6 +16,15 @@ public class LeaveApplicationController {
     private final LeaveApplicationService leaveService;
 
 
+    @PostMapping("/getApplyList")
+    public DataResponse getApplyList(@Valid @RequestBody DataRequest dataRequest){
+        return leaveService.getApplyList(dataRequest);
+    }
+
+    @PostMapping("/getTeacherItemOptionList")
+    public OptionItemList getTeacherItemOptionList(@Valid @RequestBody DataRequest dataRequest){
+        return leaveService.getTeacherItemOptionList(dataRequest);
+    }
 
     // 学生提交请假
     @PostMapping("/apply")
@@ -36,11 +43,28 @@ public class LeaveApplicationController {
         return leaveService.disApprove(dataRequest);
     }
 
-    // 获取某个学生的所有请假申请
-    @PostMapping("/studentList")
-    public DataResponse listByStudent(@Valid @RequestBody DataRequest dataRequest) {
-        return leaveService.listByStudent(dataRequest);
+    @PostMapping("/updateStudent")
+    public DataResponse updateStudent(@Valid @RequestBody DataRequest dataRequest){
+        return leaveService.updateStudent(dataRequest);
     }
 
+    @PostMapping("/updateTeacher")
+    public DataResponse updateTeacher(@Valid @RequestBody DataRequest dataRequest){
+        return leaveService.updateTeacher(dataRequest);
+    }
 
+    @PostMapping("/deleteApplication")
+    public DataResponse deleteApplication(@Valid @RequestBody DataRequest dataRequest){
+        return leaveService.deleteApplication(dataRequest);
+    }
+
+    @PostMapping("/reportCancel")
+    public DataResponse reportCancel(@Valid @RequestBody DataRequest dataRequest){
+        return leaveService.reportCancel(dataRequest);
+    }
+
+    @PostMapping("/finishLeave")
+    public DataResponse finishLeave(@Valid @RequestBody DataRequest dataRequest){
+        return leaveService.finishLeave(dataRequest);
+    }
 }
