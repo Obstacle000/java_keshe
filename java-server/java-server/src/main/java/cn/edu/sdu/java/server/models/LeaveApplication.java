@@ -18,11 +18,11 @@ public class LeaveApplication {
     private Integer leaveId;
 
     @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
+    @JoinColumn(name = "student_id", referencedColumnName = "person_id")
     private Student student;
 
     @ManyToOne
-    @JoinColumn(name = "teacher_id", nullable = false)
+    @JoinColumn(name = "teacher_id", referencedColumnName = "person_id")
     private Teacher teacher;
 
     @Column(length = 1000)

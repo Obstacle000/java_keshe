@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="com.teach.javafx.controller.LeaveEditDialogController">
+    <HBox spacing="10">
+        <Label text="审批老师：" />
+        <ComboBox fx:id="teacherComboBox" prefWidth="200"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Label text="开始时间：" />
+        <DatePicker fx:id="startDatePicker" />
+    </HBox>
+    <HBox spacing="10">
+        <Label text="结束时间：" />
+        <DatePicker fx:id="endDatePicker" />
+    </HBox>
+
+
+    <HBox spacing="10">
+        <Label text="请假理由：" />
+        <TextField fx:id="reasonField" prefWidth="300"/>
+    </HBox>
+    <HBox spacing="10">
+        <Label text="回复内容：" />
+        <TextField fx:id="replyField" prefWidth="300"/>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="saveButton" text="保存" onAction="#onSave"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="approveButton" text="同意" onAction="#onApprove"/>
+        <Button fx:id="rejectButton" text="不同意" onAction="#onReject"/>
+        <Button fx:id="cancelButton" text="申请销假" onAction="#onCancelRequest"/>
+        <Button fx:id="confirmCancelButton" text="确认销假" onAction="#onConfirmCancel"/>
+    </HBox>
+</VBox>
+

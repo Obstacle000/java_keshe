@@ -87,6 +87,7 @@ public class LeaveApplicationService {
             Map<String, Object> m = new HashMap<>();
             m.put("leaveId",leaveApplication.getLeaveId());
             m.put("student",leaveApplication.getStudent().getPerson().getName());
+            m.put("num",leaveApplication.getStudent().getPerson().getNum());
             m.put("teacher",leaveApplication.getTeacher().getPerson().getName());
             m.put("reason",leaveApplication.getReason());
             m.put("startDate",leaveApplication.getStartDate());
@@ -117,7 +118,8 @@ public class LeaveApplicationService {
         String reason = dataRequest.getString("reason");
         Date startDate = dataRequest.getDate("startDate");
         Date endDate = dataRequest.getDate("endDate");
-        Date applyTime = dataRequest.getDate("applyTime");
+        Date applyTime = new Date();
+
         //检查数据有效性
         if (startDate == null || endDate == null)
             return CommonMethod.getReturnMessageError("开始时间或结束时间不能为空");
@@ -149,8 +151,11 @@ public class LeaveApplicationService {
         leaveApplication.setApplyTime(applyTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
         leaveApplication.setStatus(0);
         leaveApplication.setReply(null);
-        leaveApplicationRepository.save(leaveApplication);
-
+        try {
+            leaveApplicationRepository.save(leaveApplication);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return CommonMethod.getReturnMessageOK("申请成功！");
     }
 
@@ -189,14 +194,18 @@ public class LeaveApplicationService {
         Optional<LeaveApplication> applyOpt = leaveApplicationRepository.findById(leaveId);
         if (applyOpt.isEmpty())
             return CommonMethod.getReturnMessageError("申请不存在");
+
         LeaveApplication leaveApplication = applyOpt.get();
 
-        Integer teacherId = dataRequest.getInteger("teacherId");//也算申请过程的一环
+        // 权限判断（可选）
+        // 如果你已经通过前端限制角色，那这里可以不写；也可以加一个更保险的验证，如：
+        // if (!当前用户是学生本人) return CommonMethod.getReturnMessageError("无权修改");
+
+        Integer teacherId = dataRequest.getInteger("teacherId");
         String reason = dataRequest.getString("reason");
         Date startDate = dataRequest.getDate("startDate");
         Date endDate = dataRequest.getDate("endDate");
         Date applyTime = dataRequest.getDate("applyTime");
-        //除此之外别的信息设置成不让学生修改，免得再set一遍，以下的修改方式类似
 
         if (startDate == null || endDate == null)
             return CommonMethod.getReturnMessageError("开始时间或结束时间不能为空");
@@ -206,15 +215,19 @@ public class LeaveApplicationService {
             return CommonMethod.getReturnMessageError("请选择审批老师");
         if (reason == null)
             return CommonMethod.getReturnMessageError("请假理由不能为空");
+
+        // 学生只能改这几个字段
         if (teacherRepository.findByPersonPersonId(teacherId).isPresent())
             leaveApplication.setTeacher(teacherRepository.findByPersonPersonId(teacherId).get());
         leaveApplication.setReason(reason);
         leaveApplication.setStartDate(startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         leaveApplication.setEndDate(endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         leaveApplication.setApplyTime(applyTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
         leaveApplicationRepository.save(leaveApplication);
-        return CommonMethod.getReturnMessageOK("修改成功！");
+        return CommonMethod.getReturnMessageOK("学生修改成功！");
     }
+
 
     public DataResponse updateTeacher(@Valid DataRequest dataRequest){
         Integer leaveId = dataRequest.getInteger("leaveId");

@@ -2,11 +2,10 @@ package cn.edu.sdu.java.server.services;
 
 import cn.edu.sdu.java.server.models.Activity;
 import cn.edu.sdu.java.server.models.Notice;
+import cn.edu.sdu.java.server.models.SocialPractice;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
 import cn.edu.sdu.java.server.payload.response.DataResponse;
-import cn.edu.sdu.java.server.repositorys.ActivityRepository;
-import cn.edu.sdu.java.server.repositorys.NoticeRepository;
-import cn.edu.sdu.java.server.repositorys.StudentSignUpRepository;
+import cn.edu.sdu.java.server.repositorys.*;
 import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,11 @@ public class NoticeService {
     private ActivityRepository activityRepository;
     @Autowired
     private StudentSignUpRepository studentSignUpRepository;
+
+    @Autowired
+    private SocialPracticeRepository socialPracticeRepository;
+    @Autowired
+    private StudentSocialPracticeSignUpRepository studentSocialPracticeSignUpRepository;
 
     // 获取通知列表
     public DataResponse getNoticeList(@Valid DataRequest dataRequest) {
@@ -94,8 +98,15 @@ public class NoticeService {
         for (Activity activity : activities) {
             studentSignUpRepository.deleteByActivity(activity);
         }
+
+        List<SocialPractice> socialPractices = socialPracticeRepository.findByNoticeNoticeId(noticeId);
+        for (SocialPractice socialPractice : socialPractices) {
+            studentSocialPracticeSignUpRepository.deleteBySocialPractice(socialPractice);
+        }
         // 删除活动表
         activityRepository.deleteAll(activities);
+
+        socialPracticeRepository.deleteAll(socialPractices);
 
         // 删除通知表
         noticeRepository.deleteById(noticeId);
