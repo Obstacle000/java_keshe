@@ -5,6 +5,7 @@ import com.teach.javafx.request.DataRequest;
 import com.teach.javafx.request.DataResponse;
 import com.teach.javafx.request.HttpRequestUtil;
 import com.teach.javafx.request.OptionItem;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -66,7 +67,21 @@ public class LeavePanelController {
         boolean isTeacher = AppStore.getJwt().getRole().equals("ROLE_TEACHER");
         applyButton.setVisible(!isTeacher);
 
-        leaveIdColumn.setCellValueFactory(new MapValueFactory<>("leaveId"));
+        leaveIdColumn.setCellValueFactory(cellData -> {
+            Object value = cellData.getValue().get("leaveId");
+            String strValue = "";
+            if (value instanceof Number) {
+                strValue = String.valueOf(((Number) value).intValue());
+            } else if (value != null) {
+                try {
+                    double d = Double.parseDouble(value.toString());
+                    strValue = String.valueOf((int) d);
+                } catch (NumberFormatException e) {
+                    strValue = value.toString(); // fallback
+                }
+            }
+            return new SimpleStringProperty(strValue);
+        });
         studentNameColumn.setCellValueFactory(new MapValueFactory<>("student"));
         teacherNameColumn.setCellValueFactory(new MapValueFactory<>("teacher"));
         numColumn.setCellValueFactory(new MapValueFactory<>("num"));  //设置列值工程属性

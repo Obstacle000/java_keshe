@@ -222,7 +222,7 @@ public class TeacherService {
 
                 User user = new User();
                 user.setUserName(person.getNum());
-                user.setPassword(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"));
+                user.setPassword(encoder.encode("123456"));
                 user.setCreateTime(LocalDateTime.now().toString());
                 user.setLoginCount(0);
                 user.setPerson(person);

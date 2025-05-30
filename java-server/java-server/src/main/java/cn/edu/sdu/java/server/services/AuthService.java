@@ -70,8 +70,9 @@ public class AuthService {
             userRepository.save(user);
         }
         String jwt = jwtService.generateToken(userDetails);
+        User user = userRepository.findByUserId(userDetails.getId());
         return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
+                user.getPerson().getPersonId(),
                 userDetails.getUsername(),
                 userDetails.getPerName(),
                 roles.getFirst()));

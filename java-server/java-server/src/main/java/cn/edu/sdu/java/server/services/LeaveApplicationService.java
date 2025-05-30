@@ -62,14 +62,14 @@ public class LeaveApplicationService {
         List<LeaveApplication> applyList = new ArrayList<>();
         if (personOption.isPresent()){
             Person person = personOption.get();
-            if (person.getType().equals(EUserType.ROLE_STUDENT.toString())){
+            if (person.getType().equals("1")){
                 Optional<Student> sO = studentRepository.findByPersonPersonId(personId);
                 if (sO.isPresent()){
                     Student s = sO.get();
                     Integer studentId = s.getPersonId();
                     applyList = leaveApplicationRepository.findByStudentPersonId(studentId);
                 }
-            }else if (person.getType().equals(EUserType.ROLE_TEACHER.toString())){
+            }else if (person.getType().equals("2")){
                 Optional<Teacher> tO = teacherRepository.findByPersonPersonId(personId);
                 if (tO.isPresent()){
                     Teacher t = tO.get();
@@ -78,9 +78,7 @@ public class LeaveApplicationService {
                 }
             }
         }
-        if (applyList.isEmpty()){
-            applyList = leaveApplicationRepository.findAll();
-        }
+
 
         List<Map<String, Object>> dataList = new ArrayList<>();
         for (LeaveApplication leaveApplication :applyList){
@@ -131,10 +129,12 @@ public class LeaveApplicationService {
             return CommonMethod.getReturnMessageError("请假理由不能为空");
         //确保学生不能同时存在两个假条
         List<LeaveApplication> applyList;
-        if (!leaveApplicationRepository.findByStudentPersonId(studentId).isEmpty()){
-            applyList = leaveApplicationRepository.findByStudentPersonId(studentId);
+        List<LeaveApplication> byStudentPersonId = leaveApplicationRepository.findByStudentPersonPersonId(studentId);
+        boolean notExist = byStudentPersonId.isEmpty();
+        if (!notExist){
+            applyList = byStudentPersonId;
             for (LeaveApplication l:applyList){
-                if (l.getStatus()!=4){
+                if (!(l.getStatus()==4 || l.getStatus() == 2)){
                     return CommonMethod.getReturnMessageError("您有未撤销的假条，请先销假");
                 }
             }
