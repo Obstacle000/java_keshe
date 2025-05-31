@@ -31,4 +31,10 @@ public class SocialPracticeSignupController {
         return socialPracticeSignUpService.submitProofMaterial(dataRequest);
     }
 
+    @RequestMapping("/getSignupList")
+    public DataResponse getSignupList(@Valid @RequestBody DataRequest dataRequest) {
+        return socialPracticeSignUpService.getSignupList(dataRequest);
+    }
+
+
 }

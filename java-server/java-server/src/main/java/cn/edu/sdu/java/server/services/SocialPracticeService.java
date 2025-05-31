@@ -14,7 +14,9 @@ import cn.edu.sdu.java.server.util.CommonMethod;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -39,7 +41,7 @@ public class SocialPracticeService {
         List<SocialPractice> lists = socialPracticeRepository.findAll();
         List<Map<String,Object>> dataList = new ArrayList<>();
         Map<String,Object> m;
-
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (SocialPractice socialPractice : lists) {
             m = new HashMap<>();
             long count = studentSocialPracticeSignUpRepository.countBySocialPracticeId(socialPractice.getPracticeId());
@@ -59,8 +61,8 @@ public class SocialPracticeService {
             m.put("socialPracticeId", socialPractice.getPracticeId());
             m.put("title", socialPractice.getTitle());
             m.put("description", socialPractice.getDescription());
-            m.put("startTime", socialPractice.getStartTime());
-            m.put("endTime", socialPractice.getEndTime());
+            m.put("startTime", socialPractice.getStartTime() == null ? "" : sdf.format(socialPractice.getStartTime()));
+            m.put("endTime", socialPractice.getEndTime() == null ? "" : sdf.format(socialPractice.getEndTime()));
 
             dataList.add(m);
         }
@@ -98,7 +100,7 @@ public class SocialPracticeService {
         m.put("createTime", notice.getCreateTime());
         return CommonMethod.getReturnData(m);
     }
-
+    @Transactional
     public DataResponse addSocialPractice(@Valid DataRequest dataRequest) {
         String title = dataRequest.getString("title");
         String description = dataRequest.getString("description");
@@ -135,7 +137,7 @@ public class SocialPracticeService {
     }
 
 
-
+    @Transactional
     public DataResponse deleteSocialPractice(@Valid DataRequest dataRequest) {
         Integer socialPracticeId = dataRequest.getInteger("socialPracticeId");
         Optional<SocialPractice> socialPracticeOpt = socialPracticeRepository.findById(socialPracticeId);

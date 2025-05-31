@@ -60,6 +60,8 @@ public class ActivitySignUpService {
             else if(!isSignedUp) {
                 // 学生报名后取消报名了,记录还在,此时需要改成true
                 as.setStatus(true);
+                as.setSignupTime(new Date());
+
                 activitySignupRepository.save(as);
                 return CommonMethod.getReturnMessageOK("报名成功");
 
@@ -71,6 +73,7 @@ public class ActivitySignUpService {
         signup.setStudent(student);
         signup.setActivity(activityOpt.get());
         signup.setStatus(true);
+        signup.setSignupTime(new Date());
         try {
             activitySignupRepository.save(signup);
         } catch (Exception e) {

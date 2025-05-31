@@ -15,6 +15,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -39,7 +41,7 @@ public class ActivityService {
         List<Activity> lists = activityRepository.findAll();
         List<Map<String,Object>> dataList = new ArrayList<>();
         Map<String,Object> m;
-
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (Activity activity : lists) {
             m = new HashMap<>();
             long count = studentSignUpRepository.countByActivityId(activity.getActivityId());
@@ -59,8 +61,8 @@ public class ActivityService {
             m.put("activityId", activity.getActivityId());
             m.put("title", activity.getTitle());
             m.put("description", activity.getDescription());
-            m.put("startTime", activity.getStartTime());
-            m.put("endTime", activity.getEndTime());
+            m.put("startTime", activity.getStartTime() == null ? "" : sdf.format(activity.getStartTime()));
+            m.put("endTime", activity.getEndTime() == null ? "" : sdf.format(activity.getEndTime()));
 
             dataList.add(m);
         }

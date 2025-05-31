@@ -205,18 +205,35 @@ public class HttpRequestUtil {
      * @param remoteFile 远程文件路径
      * @return 上传操作信息
      */
-    public static DataResponse uploadFile(String uri,String fileName,String remoteFile,MyTreeNode root)  {
+    public static DataResponse uploadFile(String uri, String fileName, String remoteFile, MyTreeNode root) {
         try {
             Path file = Path.of(fileName);
             HttpClient client = HttpClient.newBuilder().build();
+
+            // 构建基础参数
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append(serverUrl)
+                    .append(uri)
+                    .append("?uploader=").append(AppStore.getJwt().getId())
+                    .append("&remoteFile=").append(remoteFile)
+                    .append("&fileName=").append(file.getFileName());
+
+            // 如果 root 不为空，拼接节点参数
+            if (root != null) {
+                urlBuilder.append("&id=").append(root.getId())
+                        .append("&value=").append(root.getValue())
+                        .append("&title=").append(root.getTitle())
+                        .append("&pid=").append(root.getPid());
+            }
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(serverUrl+uri+"?uploader="+AppStore.getJwt().getId()+"&remoteFile="+remoteFile + "&fileName="
-                            + file.getFileName()+"&id="+root.getId()+"&value=" + root.getValue()+"&title="+root.getTitle()+"&pid="+root.getPid())) // id是userId,后面的id是节点id
+                    .uri(URI.create(urlBuilder.toString()))
                     .POST(HttpRequest.BodyPublishers.ofFile(file))
                     .headers("Authorization", "Bearer " + AppStore.getJwt().getToken())
                     .build();
-            HttpResponse<String>  response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if(response.statusCode() == 200) {
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
                 return gson.fromJson(response.body(), DataResponse.class);
             }
         } catch (IOException | InterruptedException e) {
