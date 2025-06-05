@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/competition-signup")
+@RequestMapping("/api/competitionSignup")
 @RequiredArgsConstructor
 public class CompetitionSignupController {
 
@@ -16,12 +16,17 @@ public class CompetitionSignupController {
 
     @PostMapping("/newSignup")
     public DataResponse signup(@Valid @RequestBody DataRequest request) {
-        return null;
+        return service.signup(request);
     }
 
 
     @PostMapping("/cancelSignUp")
     public DataResponse cancelSignup(@Valid @RequestBody DataRequest request) {
-        return null;
+        return service.cancelSignup(request);
+    }
+
+    @PostMapping("/getSignupList")
+    public DataResponse getSignupList(@Valid @RequestBody DataRequest request){
+        return service.getSignupList(request);
     }
 }

@@ -49,7 +49,13 @@ public class SocialPracticeSignupService {
         if (SocialPracticeOpt.isEmpty()) {
             return CommonMethod.getReturnMessageError("社会实践不存在");
         }
+        SocialPractice socialPractice = SocialPracticeOpt.get();
 
+        // 时间范围判断
+        Date now = new Date();
+        if (now.before(socialPractice.getStartTime()) || now.after(socialPractice.getEndTime())) {
+            return CommonMethod.getReturnMessageError("当前不在报名时间范围内");
+        }
         // 判断是否已经报名
         Optional<SocialPracticeSignup> ss = socialPracticeSignupRepository.findByStudentPersonIdAndSocialPracticePracticeId(student.getPersonId(),socialPracticeId);
 
@@ -103,7 +109,13 @@ public class SocialPracticeSignupService {
             return CommonMethod.getReturnMessageError("报名信息不存在");
         }
 
+
+
         SocialPracticeSignup socialPracticeSignup = signupOpt.get();
+        if(socialPracticeSignup.getProofMaterialFileName() != null) {
+            return CommonMethod.getReturnMessageError("已提交证明材料不能取消报名");
+
+        }
         socialPracticeSignup.setStatus(false);
         socialPracticeSignupRepository.save(socialPracticeSignup);
         return CommonMethod.getReturnMessageOK("取消报名成功");

@@ -66,7 +66,7 @@ public class SocialPracticeController {
      * @param dataRequest
      * @return
      */
-    @PostMapping("getNoticeList")
+    @PostMapping("/getNoticeList")
     public DataResponse getNoticeList(@Valid DataRequest dataRequest) {
 
         return socialPracticeService.getNoticeList(dataRequest);

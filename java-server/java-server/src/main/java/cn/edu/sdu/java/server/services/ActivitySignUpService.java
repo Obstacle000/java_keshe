@@ -1,6 +1,7 @@
 package cn.edu.sdu.java.server.services;
 
 import cn.edu.sdu.java.server.models.Activity;
+import cn.edu.sdu.java.server.models.SocialPractice;
 import cn.edu.sdu.java.server.models.Student;
 import cn.edu.sdu.java.server.models.ActivitySignup;
 import cn.edu.sdu.java.server.payload.request.DataRequest;
@@ -46,6 +47,13 @@ public class ActivitySignUpService {
         Optional<Activity> activityOpt = activityRepository.findById(activityId);
         if (activityOpt.isEmpty()) {
             return CommonMethod.getReturnMessageError("活动不存在");
+        }
+        Activity activity = activityOpt.get();
+
+        // 时间范围判断
+        Date now = new Date();
+        if (now.before(activity.getStartTime()) || now.after(activity.getEndTime())) {
+            return CommonMethod.getReturnMessageError("当前不在报名时间范围内");
         }
 
         // 判断是否已经报名

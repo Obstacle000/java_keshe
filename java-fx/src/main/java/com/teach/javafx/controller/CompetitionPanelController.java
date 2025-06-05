@@ -1,7 +1,6 @@
 package com.teach.javafx.controller;
 
 import com.teach.javafx.AppStore;
-import com.teach.javafx.controller.base.MessageDialog;
 import com.teach.javafx.request.DataRequest;
 import com.teach.javafx.request.DataResponse;
 import com.teach.javafx.request.HttpRequestUtil;
@@ -9,31 +8,27 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SocialPracticePanelController {
-
+public class CompetitionPanelController {
     @FXML
     private Button addButton;
 
     @FXML
-    private TableColumn<Map, String> aspectColumn1;
+    private TableColumn<Map, String> aspectColumn1;//查看
+
+    @FXML
+    private TableColumn<Map, String> competitionIdColumn;
 
     @FXML
     private TableView<Map<String, Object>> dataTableView;
@@ -45,7 +40,7 @@ public class SocialPracticePanelController {
     private TableColumn<Map, String> descriptionColumn;
 
     @FXML
-    private TableColumn<Map, String> detailColumn;
+    private TableColumn<Map, String> detailColumn;//详情
 
     @FXML
     private Button editButton;
@@ -60,14 +55,16 @@ public class SocialPracticePanelController {
     private TableColumn<Map, String> signupCountColumn;
 
     @FXML
-    private TableColumn<Map, String> socialPracticeIdColumn;
+    private TableColumn<Map, String>  startTimeColumn;
 
     @FXML
-    private TableColumn<Map, String> startTimeColumn;
+    private TableColumn<Map, String>  titleColumn;
 
-    @FXML
-    private TableColumn<Map, String> titleColumn;
-    private static ArrayList<Map<String, Object>> practiceList = new ArrayList();
+    private static ArrayList<Map<String, Object>> competitionList = new ArrayList();
+
+    private TableView<Map<String, Object>> signupTableView; // 添加这行到类中
+
+
 
     @FXML
     void initialize() {
@@ -81,8 +78,8 @@ public class SocialPracticePanelController {
             addButton.setVisible(false);
             aspectColumn1.setVisible(false);
         }
-        socialPracticeIdColumn.setCellValueFactory(cellData -> {
-            Object val = cellData.getValue().get("socialPracticeId");
+        competitionIdColumn.setCellValueFactory(cellData -> {
+            Object val = cellData.getValue().get("competitionId");
             if (val instanceof Number) {
                 return new ReadOnlyStringWrapper(String.valueOf(((Number) val).intValue()));
             }
@@ -116,6 +113,7 @@ public class SocialPracticePanelController {
             Object val = cellData.getValue().get("endTime");
             return new ReadOnlyStringWrapper(val == null ? "" : val.toString());
         });
+
         // 详情按钮列
         detailColumn.setCellValueFactory(param -> new ReadOnlyStringWrapper(""));
         detailColumn.setCellFactory(col -> new TableCell<>() {
@@ -145,31 +143,20 @@ public class SocialPracticePanelController {
         signupColumn.setCellFactory(col -> new TableCell<>() {
             private final Button signupBtn = new Button("报名");
             private final Button cancelSignupBtn = new Button("取消报名");
-            private final Button uploadProofBtn = new Button("上传附件");
-            private final HBox signedUpBox = new HBox(5); // 报名后显示的两个按钮
-            private final HBox signupBox = new HBox();    // 报名前显示的报名按钮
+            private final HBox buttonBox = new HBox(5); // 水平排列按钮，间距5
 
             {
-                // 报名按钮行为
                 signupBtn.setOnAction(event -> {
                     Map<String, Object> row = getTableView().getItems().get(getIndex());
                     handleSignup(row);
                 });
 
-                // 取消报名按钮行为
                 cancelSignupBtn.setOnAction(event -> {
                     Map<String, Object> row = getTableView().getItems().get(getIndex());
                     handleCancelSignup(row);
                 });
 
-                // 上传附件按钮行为
-                uploadProofBtn.setOnAction(event -> {
-                    Map<String, Object> row = getTableView().getItems().get(getIndex());
-                    handleUploadProof(row);
-                });
-
-                signedUpBox.getChildren().addAll(cancelSignupBtn, uploadProofBtn);
-                signupBox.getChildren().add(signupBtn);
+                buttonBox.getChildren().addAll(signupBtn, cancelSignupBtn);
             }
 
             @Override
@@ -180,12 +167,9 @@ public class SocialPracticePanelController {
                 } else {
                     Map<String, Object> row = getTableView().getItems().get(getIndex());
                     Boolean isSignedUp = (Boolean) row.get("isSignedUp");
-
-                    if (Boolean.TRUE.equals(isSignedUp)) {
-                        setGraphic(signedUpBox);
-                    } else {
-                        setGraphic(signupBox);
-                    }
+                    signupBtn.setVisible(isSignedUp == null || !isSignedUp);
+                    cancelSignupBtn.setVisible(Boolean.TRUE.equals(isSignedUp));
+                    setGraphic(buttonBox);
                 }
             }
         });
@@ -228,26 +212,31 @@ public class SocialPracticePanelController {
         loadActivityData();
     }
 
+
+
+
+
     private void showSignupList(Map<String, Object> practiceRow) {
-        Object socialPracticeIdObj = practiceRow.get("socialPracticeId");
-        int socialPracticeId = parseSocialPracticeId(socialPracticeIdObj);
-        if (socialPracticeId == -1) return;
+        Object competitionIdObj = practiceRow.get("competitionId");
+        int competitionId = parseCompetitionId(competitionIdObj);
+        if (competitionId == -1) return;
 
         DataRequest req = new DataRequest();
-        req.add("socialPracticeId", socialPracticeId);
+        req.add("competitionId", competitionId);
 
-        DataResponse res = HttpRequestUtil.request("/api/socialPracticeSignup/getSignupList", req);
+        DataResponse res = HttpRequestUtil.request("/api/competitionSignup/getSignupList", req);
         if (res == null || res.getCode() != 0) {
-            showAlert("获取报名信息失败", Alert.AlertType.ERROR);
+            showAlert(res.getMsg(), Alert.AlertType.ERROR);
             return;
         }
 
         List<Map<String, Object>> signupList = (List<Map<String, Object>>) res.getData();
 
         // 创建表格
-        TableView<Map<String, Object>> tableView = new TableView<>();
-        tableView.setPrefWidth(500);
-        tableView.setPrefHeight(300);
+        signupTableView = new TableView<>(); // 原本是局部变量，现在赋值给成员变量
+        signupTableView.setPrefWidth(500);
+        signupTableView.setPrefHeight(300);
+
 
         // 学号列
         TableColumn<Map<String, Object>, String> numCol = new TableColumn<>("学号");
@@ -267,17 +256,23 @@ public class SocialPracticePanelController {
                 String.valueOf(cell.getValue().getOrDefault("signupTime", ""))
         ));
 
-        // 附件查看列
-        TableColumn<Map<String, Object>, String> photoCol = new TableColumn<>("附件");
-        photoCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(""));
-        photoCol.setCellFactory(col -> new TableCell<>() {
-            private final Button viewBtn = new Button("查看");
+        // 分数列
+        TableColumn<Map<String, Object>, String> scoreCol = new TableColumn<>("分数");
+        scoreCol.setCellValueFactory(cell -> new ReadOnlyStringWrapper(
+                String.valueOf(cell.getValue().getOrDefault("score", ""))
+        ));
+
+        // 打分按钮列
+        TableColumn<Map<String, Object>, String> rateCol = new TableColumn<>("打分");
+        rateCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(""));
+        rateCol.setCellFactory(col -> new TableCell<>() {
+            private final Button viewBtn = new Button("打分");
 
             {
                 viewBtn.setOnAction(event -> {
                     Map<String, Object> row = getTableView().getItems().get(getIndex());
-                    row.put("socialPracticeId", socialPracticeId); // 传给 displayPhoto 方法
-                    displayPhoto(row);
+                    row.put("competitionId", competitionId); // 传给 displayPhoto 方法
+                    rate(row);// 弹窗出现,带实现需要比赛id,学号和分数
                 });
             }
 
@@ -292,29 +287,105 @@ public class SocialPracticePanelController {
             }
         });
 
-        tableView.getColumns().addAll(numCol, nameCol, timeCol, photoCol);
-        tableView.getItems().addAll(signupList);
+        signupTableView.getColumns().addAll(numCol, nameCol, timeCol, scoreCol,rateCol);
+        signupTableView.getItems().addAll(signupList);
 
         // 弹窗窗口
         Stage popup = new Stage();
         popup.initModality(Modality.APPLICATION_MODAL);
         popup.setTitle("报名学生列表");
-        VBox root = new VBox(10, tableView);
+        VBox root = new VBox(10, signupTableView);
         root.setPadding(new Insets(10));
         popup.setScene(new Scene(root));
         popup.showAndWait();
     }
 
+    private void rate(Map<String, Object> row) {
+        Object competitionIdObj = row.get("competitionId");
+        Object numObj = row.get("num");
 
+        int competitionId = parseCompetitionId(competitionIdObj);
+        if (competitionId == -1 || numObj == null) {
+            showAlert("打分失败：缺少必要参数", Alert.AlertType.ERROR);
+            return;
+        }
+
+        String num = numObj.toString();
+
+        // 创建输入框
+        TextField scoreField = new TextField();
+        scoreField.setPromptText("请输入成绩（0-100）");
+
+        Button submitButton = new Button("提交");
+        Label messageLabel = new Label();
+
+        VBox vbox = new VBox(10, new Label("为学号 " + num + " 打分："), scoreField, submitButton, messageLabel);
+        vbox.setPadding(new Insets(15));
+
+        Stage popup = new Stage();
+        popup.setTitle("打分");
+        popup.setScene(new Scene(vbox, 300, 200));
+        popup.initModality(Modality.APPLICATION_MODAL);
+
+        submitButton.setOnAction(event -> {
+            String scoreText = scoreField.getText().trim();
+            int score;
+
+            try {
+                score = Integer.parseInt(scoreText);
+                if (score < 0 || score > 100) {
+                    messageLabel.setText("请输入0-100之间的分数");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                messageLabel.setText("请输入有效的整数分数");
+                return;
+            }
+
+            // 发起请求
+            DataRequest req = new DataRequest();
+            req.add("competitionId", competitionId);
+            req.add("num", num);
+            req.add("score", score);
+
+            DataResponse res = HttpRequestUtil.request("/api/competition/score", req);
+            if (res != null && res.getCode() == 0) {
+                showAlert("打分成功", Alert.AlertType.INFORMATION);
+                refreshSignupTable(competitionId); // 刷新报名表格
+                popup.close();
+            }
+            else {
+                String msg = res != null ? res.getMsg() : "请求失败";
+                messageLabel.setText("提交失败：" + msg);
+            }
+        });
+
+        popup.showAndWait();
+    }
+    // ok
+    private void refreshSignupTable(int competitionId) {
+        DataRequest req = new DataRequest();
+        req.add("competitionId", competitionId);
+
+        DataResponse res = HttpRequestUtil.request("/api/competitionSignup/getSignupList", req);
+        if (res != null && res.getCode() == 0) {
+            List<Map<String, Object>> signupList = (List<Map<String, Object>>) res.getData();
+            signupTableView.getItems().clear();
+            signupTableView.getItems().addAll(signupList);
+        }
+    }
+
+
+    // ok
     private void loadActivityData() {
         DataRequest req = new DataRequest();
         req.add("personId", AppStore.getJwt().getId());
 
-        DataResponse res = HttpRequestUtil.request("/api/socialPractice/getSocialPracticeList", req);
+        DataResponse res = HttpRequestUtil.request("/api/competition/getCompetitionList", req);
         if (res != null && res.getCode() == 0) {
-            practiceList = (ArrayList<Map<String, Object>>) res.getData();
-            if (practiceList != null) {
-                dataTableView.getItems().setAll(practiceList);
+            competitionList = (ArrayList<Map<String, Object>>) res.getData();
+            if (competitionList != null) {
+                dataTableView.getItems().setAll(competitionList);
             }
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR, "加载实践列表失败");
@@ -322,21 +393,21 @@ public class SocialPracticePanelController {
         }
     }
 
-
+    // ok
     private void showDetail(Map<String, Object> socialPractice) {
         // 从表格拿到noticeId
-        Object socialPracticeId = socialPractice.get("socialPracticeId");
-        if (socialPracticeId == null) {
+        Object competitionId = socialPractice.get("competitionId");
+        if (competitionId == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "通知ID为空，无法查看详情");
             alert.showAndWait();
             return;
         }
 
         DataRequest req = new DataRequest();
-        req.add("socialPracticeId", socialPracticeId);
+        req.add("competitionId", competitionId);
 
         // 调用后端接口，获取通知详情
-        DataResponse res = HttpRequestUtil.request("/api/socialPractice/getSocialPracticeContent", req);
+        DataResponse res = HttpRequestUtil.request("/api/competition/getCompetitionContent", req);
 
         if (res != null && res.getCode() == 0) {
             Map<String, Object> detailData = (Map<String, Object>) res.getData();
@@ -355,18 +426,18 @@ public class SocialPracticePanelController {
         }
     }
 
-
+    // ok
     private void handleSignup(Map<String, Object> row) {
         Integer personId = AppStore.getJwt().getId();
-        Object socialPracticeIdObj = row.get("socialPracticeId");
-        int socialPracticeId = parseSocialPracticeId(socialPracticeIdObj);
-        if (socialPracticeId == -1) return;
+        Object competitionIdObj = row.get("competitionId");
+        int competitionId = parseCompetitionId(competitionIdObj);
+        if (competitionId == -1) return;
 
         DataRequest req = new DataRequest();
         req.add("personId", personId);
-        req.add("socialPracticeId", socialPracticeId);
+        req.add("competitionId", competitionId);
 
-        DataResponse res = HttpRequestUtil.request("/api/socialPracticeSignup/signUp", req);
+        DataResponse res = HttpRequestUtil.request("/api/competitionSignup/newSignup", req);
         if (res != null && res.getCode() == 0) {
             showAlert("报名成功", Alert.AlertType.INFORMATION);
             row.put("isSignedUp", true);
@@ -377,85 +448,18 @@ public class SocialPracticePanelController {
         }
     }
 
-    private void handleUploadProof(Map<String, Object> row) {
-        FileChooser fileDialog = new FileChooser();
-        fileDialog.setTitle("图片上传");
-        Object socialPracticeIdObj = row.get("socialPracticeId");
-        int socialPracticeId = parseSocialPracticeId(socialPracticeIdObj);
-        if (socialPracticeId == -1) return;
-//        fileDialog.setInitialDirectory(new File("C:/"));
-        fileDialog.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("JPG 文件", "*.jpg"));
-        File file = fileDialog.showOpenDialog(null);
-        if(file == null)
-            return;
-        DataResponse res =HttpRequestUtil.uploadFile("/api/base/uploadPhoto",file.getPath(),"verifyPhoto/" + socialPracticeId + ".jpg"
-                ,null);
-        if(res.getCode() == 0) {
-            MessageDialog.showDialog("上传成功！");
-            // displayPhoto(row);
-        }
-        else {
-            MessageDialog.showDialog(res.getMsg());
-        }
-    }
-
-    public void displayPhoto(Map<String, Object> row) {
-        DataRequest req = new DataRequest();
-        Object socialPracticeIdObj = row.get("socialPracticeId");
-        int socialPracticeId = parseSocialPracticeId(socialPracticeIdObj);
-        if (socialPracticeId == -1) return;
-
-        req.add("fileName", "verifyPhoto/" + socialPracticeId + ".jpg");  // 个人照片路径
-        byte[] bytes = HttpRequestUtil.requestByteData("/api/base/getFileByteData", req);
-        if (bytes != null) {
-            ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-            Image img = new Image(in);
-
-            // 创建ImageView显示图片
-            ImageView imageView = new ImageView(img);
-            imageView.setFitWidth(400);
-            imageView.setPreserveRatio(true);
-
-            // 弹窗显示
-            Stage popup = new Stage();
-            popup.initModality(Modality.APPLICATION_MODAL);
-            popup.setTitle("查看图片");
-
-            VBox root = new VBox(imageView);
-            root.setAlignment(Pos.CENTER);
-            root.setPadding(new Insets(10));
-            Scene scene = new Scene(root, 420, 420);
-            popup.setScene(scene);
-            popup.showAndWait();
-        } else {
-            showAlert("图片不存在或加载失败", Alert.AlertType.WARNING);
-        }
-    }
-
-
-
-
-    private void showAlert(String msg) {
-        showAlert(msg, Alert.AlertType.ERROR);
-    }
-
-    private void showAlert(String msg, Alert.AlertType type) {
-        Alert alert = new Alert(type, msg);
-        alert.showAndWait();
-    }
-
+    // ok
     private void handleCancelSignup(Map<String, Object> row) {
         Integer personId = AppStore.getJwt().getId();
-        Object socialPracticeIdObj = row.get("socialPracticeId");
-        int socialPracticeId = parseSocialPracticeId(socialPracticeIdObj);
-        if (socialPracticeId == -1) return;
+        Object competitionIdObj = row.get("competitionId");
+        int competitionId = parseCompetitionId(competitionIdObj);
+        if (competitionId == -1) return;
 
         DataRequest req = new DataRequest();
         req.add("personId", personId);
-        req.add("socialPracticeId", socialPracticeId);
+        req.add("competitionId", competitionId);
 
-        DataResponse res = HttpRequestUtil.request("/api/socialPracticeSignup/cancelSignUp", req);
+        DataResponse res = HttpRequestUtil.request("/api/competitionSignup/cancelSignUp", req);
         if (res != null && res.getCode() == 0) {
             showAlert("取消报名成功", Alert.AlertType.INFORMATION);
             row.put("isSignedUp", false);
@@ -466,12 +470,12 @@ public class SocialPracticePanelController {
         }
     }
 
-    private int parseSocialPracticeId(Object socialPracticeIdObj) {
-        if (socialPracticeIdObj instanceof Number) {
-            return ((Number) socialPracticeIdObj).intValue();
+    private int parseCompetitionId(Object competitionIdObj) {
+        if (competitionIdObj instanceof Number) {
+            return ((Number) competitionIdObj).intValue();
         }
         try {
-            return Integer.parseInt(socialPracticeIdObj.toString());
+            return Integer.parseInt(competitionIdObj.toString());
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("实践ID格式错误", Alert.AlertType.ERROR);
@@ -479,13 +483,27 @@ public class SocialPracticePanelController {
         }
     }
 
+    private void showAlert(String msg) {
+        showAlert(msg, Alert.AlertType.ERROR);
+    }
+
+    private void showAlert(String msg, Alert.AlertType type) {
+        Alert alert = new Alert(type, msg);
+        alert.showAndWait();
+    }
 
 
-   @FXML
+
+
+
+
+
+
+    @FXML
     private void onAddButtonClicked() {
         // 创建弹窗
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("添加活动");
+        dialog.setTitle("添加竞赛");
 
         // 创建内容面板
         GridPane grid = new GridPane();
@@ -510,7 +528,7 @@ public class SocialPracticePanelController {
 
         // 拉取通知列表填充下拉框
         DataRequest noticeReq = new DataRequest();
-        DataResponse noticeRes = HttpRequestUtil.request("/api/socialPractice/getNoticeList", noticeReq);
+        DataResponse noticeRes = HttpRequestUtil.request("/api/competition/getNoticeList", noticeReq);
         if (noticeRes != null && noticeRes.getCode() == 0) {
             List<Map<String, Object>> notices = (List<Map<String, Object>>) noticeRes.getData();
             noticeComboBox.getItems().addAll(notices);
@@ -594,7 +612,7 @@ public class SocialPracticePanelController {
             req.add("endTime", endDateStr);
             req.add("noticeId", selectedNotice.get("noticeId"));
 
-            DataResponse res = HttpRequestUtil.request("/api/socialPractice/addSocialPractice", req);
+            DataResponse res = HttpRequestUtil.request("/api/competition/addCompetition", req);
             if (res != null && res.getCode() == 0) {
                 showAlert("添加成功", Alert.AlertType.INFORMATION);
                 loadActivityData(); // 重新加载数据
@@ -613,12 +631,12 @@ public class SocialPracticePanelController {
     private void onEditButtonClicked() {
         Map<String, Object> selected = dataTableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("请选择一个实践活动进行编辑");
+            showAlert("请选择一个竞赛活动进行编辑");
             return;
         }
 
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("编辑实践活动");
+        dialog.setTitle("编辑竞赛活动");
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -644,7 +662,7 @@ public class SocialPracticePanelController {
 
         // 加载通知列表
         DataRequest noticeReq = new DataRequest();
-        DataResponse noticeRes = HttpRequestUtil.request("/api/socialPractice/getNoticeList", noticeReq);
+        DataResponse noticeRes = HttpRequestUtil.request("/api/competition/getNoticeList", noticeReq);
         if (noticeRes != null && noticeRes.getCode() == 0) {
             List<Map<String, Object>> notices = (List<Map<String, Object>>) noticeRes.getData();
             noticeComboBox.getItems().addAll(notices);
@@ -716,14 +734,14 @@ public class SocialPracticePanelController {
                 }
 
                 DataRequest req = new DataRequest();
-                req.add("socialPracticeId", selected.get("socialPracticeId"));
+                req.add("competitionId", selected.get("competitionId"));
                 req.add("title", title);
                 req.add("description", description);
                 req.add("startTime", startDateStr);
                 req.add("endTime", endDateStr);
                 req.add("noticeId", selectedNotice.get("noticeId"));
 
-                DataResponse res = HttpRequestUtil.request("/api/socialPractice/updateSocialPractice", req);
+                DataResponse res = HttpRequestUtil.request("/api/competition/updateCompetition", req);
                 if (res != null && res.getCode() == 0) {
                     showAlert("更新成功", Alert.AlertType.INFORMATION);
                     loadActivityData();
@@ -749,9 +767,9 @@ public class SocialPracticePanelController {
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
                 DataRequest req = new DataRequest();
-                req.add("socialPracticeId", selected.get("socialPracticeId"));
+                req.add("competitionId", selected.get("competitionId"));
 
-                DataResponse res = HttpRequestUtil.request("/api/socialPractice/deleteSocialPractice", req);
+                DataResponse res = HttpRequestUtil.request("/api/competition/deleteCompetition", req);
                 if (res != null && res.getCode() == 0) {
                     showAlert("删除成功", Alert.AlertType.INFORMATION);
                     loadActivityData();
@@ -761,6 +779,4 @@ public class SocialPracticePanelController {
             }
         });
     }
-
-
 }

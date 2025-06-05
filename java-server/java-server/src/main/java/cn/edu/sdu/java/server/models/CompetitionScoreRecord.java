@@ -4,19 +4,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
 @Getter
 @Setter
 @Entity
-@Table(name = "competition_signup",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"competition_id", "student_id"}))
-public class CompetitionSignup {
-
+@Table(name = "competition_score_record")
+public class CompetitionScoreRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer signupId;
+    private Integer scoreId;
 
     @ManyToOne
     @JoinColumn(name = "competition_id", nullable = false)
@@ -26,7 +21,7 @@ public class CompetitionSignup {
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
-    private Date signupTime;
+    @Column(name = "score", nullable = false)
+    private Integer score;
 
-    private Boolean status; // 报名状态
 }
