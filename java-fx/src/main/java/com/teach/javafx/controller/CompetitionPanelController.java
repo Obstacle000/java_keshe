@@ -350,7 +350,7 @@ public class CompetitionPanelController {
 
             DataResponse res = HttpRequestUtil.request("/api/competition/score", req);
             if (res != null && res.getCode() == 0) {
-                showAlert("打分成功", Alert.AlertType.INFORMATION);
+                showAlert(res.getMsg(), Alert.AlertType.INFORMATION);
                 refreshSignupTable(competitionId); // 刷新报名表格
                 popup.close();
             }

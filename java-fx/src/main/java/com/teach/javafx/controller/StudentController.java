@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * StudentController 登录交互控制类 对应 student_panel.fxml  对应于学生管理的后台业务处理的控制器，主要获取数据和保存数据的方法不同
@@ -408,6 +409,12 @@ public class StudentController extends ToolController {
                 deleteButton.setOnAction(event -> {
                     Map item = getTableView().getItems().get(getIndex());
 
+                    // 判断是否所有字段都为空
+                    boolean isAllEmpty = Stream.of("relation", "name", "gender", "age", "unit")
+                            .allMatch(key -> {
+                                Object val = item.get(key);
+                                return val == null || val.toString().trim().isEmpty();
+                            });
 
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("确认删除");
@@ -416,19 +423,22 @@ public class StudentController extends ToolController {
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.isPresent() && result.get() == ButtonType.OK) {
-                        Object name = item.get("name");
-                        if (name != null) {
-                            DataRequest delReq = new DataRequest();
-                            delReq.add("name", name);
-                            DataResponse delRes = HttpRequestUtil.request("/api/student/familyMemberDelete", delReq);
-                            if (delRes.getCode() != 0) {
-                                MessageDialog.showDialog("删除失败: " + delRes.getMsg());
-                                return;
+                        if (!isAllEmpty) {
+                            Object name = item.get("name");
+                            if (name != null && !name.toString().trim().isEmpty()) {
+                                DataRequest delReq = new DataRequest();
+                                delReq.add("name", name);
+                                DataResponse delRes = HttpRequestUtil.request("/api/student/familyMemberDelete", delReq);
+                                if (delRes.getCode() != 0) {
+                                    MessageDialog.showDialog("删除失败: " + delRes.getMsg());
+                                    return;
+                                }
                             }
                         }
                         getTableView().getItems().remove(getIndex());
                     }
                 });
+
             }
 
             @Override

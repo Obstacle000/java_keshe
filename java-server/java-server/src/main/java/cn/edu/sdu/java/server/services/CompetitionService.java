@@ -206,7 +206,8 @@ public class CompetitionService {
         if (existingScoreOpt.isPresent()) {
             CompetitionScoreRecord existingScoreRecord = existingScoreOpt.get();
             existingScoreRecord.setScore(score);
-            return CommonMethod.getReturnMessageOK("该学生的成绩记录以更新");
+            competitionScoreRepository.save(existingScoreRecord);
+            return CommonMethod.getReturnMessageOK("该学生的成绩记录已更新");
         }
 
         // 创建成绩记录
